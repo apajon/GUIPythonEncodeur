@@ -1,0 +1,3 @@
+[submodule "GUI_QT_ONLY"]
+	path = GUI_QT_ONLY
+	url = https://github.com/WilliamBonilla62/GUI_QT_ONLY.git
