@@ -13,10 +13,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import *
-from
 import sys
-sys.path.insert(1,'/home/william/Documents/Cirris/Git_Repo/api_phidget_n_MQTT/src/')
-import phidget22PlotLastLogMeasures.py
+sys.path.insert(0,'/home/william/Documents/Cirris/Git_Repo/api_phidget_n_MQTT/src/')
+from Git_Repo.api_phidget_n_MQTT.src import phidget22PlotLastLogMeasures, phidget22SaveLogMeasures, phidget22GetMeasures
 
 class Ui_Tester(QWidget):
     def setupUi(self, Tester):
@@ -112,6 +111,7 @@ class Ui_Tester(QWidget):
         self.CloseButton.clicked.connect(self.closeEvent)
         self.RegisterEnco.stateChanged.connect(self.registerIsOnMessage)
         self.DisplayPlotButton.clicked.connect(self.PlotData)
+        self.ToConnectButton.clicked.connect(self.ConnectToEnco)
 
 
 
@@ -149,7 +149,9 @@ class Ui_Tester(QWidget):
             recordIsOff.setStandardButtons(QMessageBox.Ok)
             recordIsOff.exec_()
     def PlotData(self):
-        print("Hello World")
+        phidget22PlotLastLogMeasures.main()
+    def ConnectToEnco(self):
+        phidget22GetMeasures.connection()
 
     def retranslateUi(self, Tester):
         _translate = QtCore.QCoreApplication.translate
