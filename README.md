@@ -31,7 +31,12 @@ cd /PATH
 ```bash
 git clone https://github.com/WilliamBonilla62/GUIPythonEncodeur.git --recursive
 ```
-the **`--recursive`** command is important it makes a direct link between the repo and all the submodules inside. If you don't put the command or download the file directly all the submodules will be empty.
+the **`--recursive`** command is important it makes a direct link between the repo and all the submodules inside. If you don't put the command or download the file directly all the submodules will be empty.\
+\
+Also if you want to be sure to have the last version of the submodule use this command:
+```bash
+git submodule update --remote
+```
 ## 1.2-Libraries
 ### 1.2.1-Needed Libraries
 - library pyqt5Screenshot from 2020-12-16 22-51-20

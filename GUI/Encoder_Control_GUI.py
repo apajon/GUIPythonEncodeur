@@ -13,10 +13,142 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import *
+from Phidget22.Devices.Encoder import *
+from Phidget22.Devices.Log import *
+from Phidget22.LogLevel import *
+from Phidget22.Phidget import *
+from Phidget22.PhidgetException import *
+import traceback
 import sys
-sys.path.insert(0,'/home/william/Documents/Cirris/Git_Repo/api_phidget_n_MQTT/src/')
-from Git_Repo.api_phidget_n_MQTT.src import phidget22PlotLastLogMeasures, phidget22SaveLogMeasures, phidget22GetMeasures
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import configparser as ConfigParser  # Python 3
+from lib_global_python import searchLoggerFile as logger
+from lib_global_python import MQTT_client
+from Git_Repo.api_phidget_n_MQTT.src.lib import phidget22Handler as handler
 
+def NewFile(file,config,fileText):
+    config.set('filenameLogger','filename',fileText)
+    with open(file,'w') as configfile:
+        config.write(configfile)
+def NewPath(file,config,pathText):
+    config.set('filenameLogger','filename',pathText)
+    with open(file,'w') as configfile:
+        config.write(configfile)
+def ConnectToEnco(config, encoder0):
+    # connect to mqtt broker
+    client = MQTT_client.createClient("Encoder", config)
+
+    ############
+    # connection to Phidget encoder and wait for measures
+    # publish the datas on config/MQTT/topic
+    try:
+        Log.enable(LogLevel.PHIDGET_LOG_INFO, "phidgetlog.log")
+        # Create your Phidget channels
+        # Set addressing parameters to specify
+        encoder0.client = client
+        encoder0.clientTopic = config.get('MQTT', 'topic')
+        encoder0.printLog = config.getboolean('encoder', 'printLog')
+        encoder0.chooseDataInterval = config.getint('encoder', 'dataInterval')
+
+        # Assign any event handlers you need before calling open so that no events are missed.
+        encoder0.setOnPositionChangeHandler(handler.onPositionChange)
+        encoder0.setOnAttachHandler(handler.onAttach)
+        encoder0.setOnDetachHandler(handler.onDetach)
+
+        # Open your Phidgets and wait for attachment
+        encoder0.openWaitForAttachment(5000)
+    except PhidgetException as ex:
+        #We will catch Phidget Exceptions here, and print the error informaiton.
+        traceback.print_exc()
+        print("")
+        print("PhidgetException " + str(ex.code) + " (" + ex.description + "): " + ex.details)
+def DisconnectEnco(encoder0):
+    encoder0.close()
+def PlotData(config):
+    ############
+    # Encoder's resolution in mm per pulse
+    #     Encoder_mm_per_Pulse = 0.02
+    Encoder_mm_per_Pulse = config.getfloat('encoder', 'resolution')
+    print("encoder resolution : " + str(Encoder_mm_per_Pulse))
+
+    ############
+    # search for the last logger file based on the indentation
+    #     filename="Logger_encoder_07.txt"
+    filename = logger.searchLoggerFile(config)
+    data = np.genfromtxt(filename, delimiter=",", names=True)
+
+    # convert the number of pulse position change into mm
+    PositionChange_mm = data['PositionChange'] * Encoder_mm_per_Pulse
+
+    # recorded time when datas are received in s
+    time = data['TimeRecording']
+    time -= time[0]  # the beginning time at 0
+
+    # vel is the velocity measured by the encoder
+    # as the positionChange_mm is in mm and the TimeChange is in ms
+    # the velocity is given in m/s
+    # If a 'detach' from the encoder, TimeChange=0 and vel will be Inf
+    vel = np.divide(PositionChange_mm, data['TimeChange'])
+
+    ############
+    # initialize the plot
+    fig, ax1 = plt.subplots()
+
+    # plot the encoder velocity in time
+    color = 'tab:blue'
+    lns1 = ax1.plot(time, vel, label="Velocity", color=color)
+    ax1.set_xlabel("time[s]")
+    ax1.set_ylabel("Velocity[m/s]", color=color)
+
+    color = 'tab:blue'
+    ax1.tick_params(axis='y', labelcolor=color)
+    ax1.grid()
+
+    #     # Create a Rectangle patch
+    #     rect = patches.Rectangle((0,0),20,0.2,linewidth=1,edgecolor='k',facecolor='tab:grey')
+    #     # Add the patch to the Axes
+    #     ax1.add_patch(rect)
+
+    # Draw a grey rectangle patch for each detach of the encoder aka 'missing values' aka TimeChange=0
+    for k in np.argwhere(data['TimeChange'] == 0):
+        if k == 0:
+            rect = patches.Rectangle((time[k], 0), time[k + 1] - time[k], 2, linewidth=1, edgecolor='k',
+                                     facecolor='tab:grey')
+            ax1.add_patch(rect)
+            lns3 = rect
+        elif k != len(data['TimeChange']):
+            if k == np.argwhere(data['TimeChange'] == 0)[0]:
+                rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], 2, linewidth=1, edgecolor='k',
+                                         facecolor='tab:grey')
+                lns3 = ax1.add_patch(rect)
+            else:
+                rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], 2, linewidth=1, edgecolor='k',
+                                         facecolor='tab:grey')
+                ax1.add_patch(rect)
+
+    # plot the encoder distance measured in m
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+    color = 'tab:red'
+    ax2.set_ylabel('Position[m]', color=color)  # we already handled the x-label with ax1
+    lns2 = ax2.plot(time, np.cumsum(PositionChange_mm / 1000), color=color, label="Position")
+    ax2.tick_params(axis='y', labelcolor=color)
+
+    plt.title("velocity and position measured by encoder \n in file : " + filename)
+
+    # Legend manage if there is no missing value meaning lns3 does not exist
+    try:
+        lns = [lns1[0], lns2[0], lns3]
+        labs = ('Velocity', 'Position', 'Missing velocity')
+    except:
+        lns = [lns1[0], lns2[0]]
+        labs = ('Velocity', 'Position')
+    ax1.legend(lns, labs)  # , loc=0)
+
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    plt.show()
 class Ui_Tester(QWidget):
     def setupUi(self, Tester):
         Tester.setObjectName("Tester")
@@ -107,14 +239,22 @@ class Ui_Tester(QWidget):
         self.retranslateUi(Tester)
         self.centerOnScreen()
         QtCore.QMetaObject.connectSlotsByName(Tester)
+        encoder0 = Encoder()
+        ############
+        # import config file
+        file='config.cfg'
+        config = ConfigParser.ConfigParser()
+        print("opening configuration file : config.cfg")
+        config.read(file)
         # User interaction---------------------------------------------------------------------------------------------------------------------------------------
         self.CloseButton.clicked.connect(self.closeEvent)
         self.RegisterEnco.stateChanged.connect(self.registerIsOnMessage)
-        self.DisplayPlotButton.clicked.connect(self.PlotData)
+        self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
         self.ToConnectButton.clicked.connect(self.ConnectToEnco)
-
-
-
+        self.FileConfirmButton.clicked.connect(lambda: NewFile(file,config,self.textEditFile.toPlainText()))
+        self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file,config,self.textEditDirectory.toPlainText()))
+        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(config,encoder0))
+        self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(encoder0))
     def centerOnScreen(self):
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
@@ -148,10 +288,9 @@ class Ui_Tester(QWidget):
             recordIsOff.setWindowTitle("Information recording")
             recordIsOff.setStandardButtons(QMessageBox.Ok)
             recordIsOff.exec_()
-    def PlotData(self):
-        phidget22PlotLastLogMeasures.main()
+
     def ConnectToEnco(self):
-        phidget22GetMeasures.connection()
+        print("Hello world")
 
     def retranslateUi(self, Tester):
         _translate = QtCore.QCoreApplication.translate
@@ -165,7 +304,7 @@ class Ui_Tester(QWidget):
         self.groupBox_3.setTitle(_translate("Tester", "Afficher données"))
         self.DisplayPlotButton.setText(_translate("Tester", "Graphique de donnée"))
         self.label_3.setText(_translate("Tester", "Valeur en temps réel"))
-        self.groupBox_4.setTitle(_translate("Tester", "Fichier"))
+        self.groupBox_4.setTitle(_translate("Tester", " Configuration"))
         self.FIleLabel.setText(_translate("Tester", "Fichier"))
         self.FileConfirmButton.setText(_translate("Tester", "Confirmer"))
         self.DirectoryConfirmB.setText(_translate("Tester", "Confirmer"))
