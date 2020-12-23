@@ -239,8 +239,9 @@ class Ui_Tester(QWidget):
         self.retranslateUi(Tester)
         self.centerOnScreen()
         QtCore.QMetaObject.connectSlotsByName(Tester)
-        encoder0 = Encoder()
+
         ############
+        encoder0 = Encoder()
         # import config file
         file='config.cfg'
         config = ConfigParser.ConfigParser()
