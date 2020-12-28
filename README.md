@@ -17,6 +17,7 @@ ____
     - [1.4.2-Translate .UI to .PY](#142-Modify-the-Graphical-User-Interface)
 ____
 # 1-Installation procedure
+Before starting this procedure make sure the you have installed the **lib_global_python** and have read the readme file of this repo.
 ## 1.1-Get the code
 
 To install the software on raspbian virtual Desktop:
@@ -35,11 +36,11 @@ the **`--recursive`** command is important it makes a direct link between the re
 \
 Also if you want to be sure to have the last version of the submodule use this command:
 ```bash
-git submodule update --remote
+git submodule update --remote --recursive
 ```
 ## 1.2-Libraries
 ### 1.2.1-Needed Libraries
-- library pyqt5Screenshot from 2020-12-16 22-51-20
+- library pyqt5
 ### 1.2.2-Install Libraries
 #### library phidget installation
 Open a terminal write down these two command :
@@ -61,6 +62,14 @@ sudo apt-get install qttools5-dev-tools
 ### 1.4.1-Qt Design
 Open the file with Qt5 Designer **Encoder_Control_GUI.ui** in the submodule **GUI_QT_ONLY** inside the **QT** folder. Do the modification needed and save the file.
 ### 1.4.2-Translate .UI to .PY
+Before converting your .ui into .py be sure to save your old .py. Use this command to be able to copy-paste your old gui (**Encoder_Control_GUI.py**) in a copy named **CodeForFunctions.py**.
+```bash
+cp Encoder_Control_GUI.py CodeForFunctions.py
+```
+Now all the functions of the old GUI will be saved in **CodeForFunctions.py** and you will have to add them to the new GUI.\
+\
+Then copy the **Encoder_Control_GUI.ui** inside the **`/GUI`** directory and then proceed to the convertion.\
+\
 To convert a .ui to a .py you will to run this command:
 ```bash
 pyuic5 -x Encoder_Control_GUI.ui -o Encoder_Control_GUI.py
