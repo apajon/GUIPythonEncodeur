@@ -26,7 +26,8 @@ import matplotlib.patches as patches
 import configparser as ConfigParser  # Python 3
 from lib_global_python import searchLoggerFile as logger
 from lib_global_python import MQTT_client
-from Git_Repo.api_phidget_n_MQTT.src.lib import phidget22Handler as handler
+sys.path.insert(1, '/home/pi/Documents/api_phidget_n_MQTT/src/lib_api_phidget22')
+import phidget22Handler as handler
 def NewFile(file,config,fileText):
     config.set('filenameLogger','filename',fileText)
     with open(file,'w') as configfile:
