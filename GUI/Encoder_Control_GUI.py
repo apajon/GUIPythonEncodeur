@@ -9,6 +9,9 @@
 # -------------------------------------------------------------------------
 # This code has been developped by: William Bonilla
 # For any questions you can contact my at miloubonilla@gmail.com
+#********************************************************************
+# Before starting to update the software please read the Readme file.
+#********************************************************************
 # -------------------------------------------------------------------------
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
@@ -27,18 +30,24 @@ import configparser as ConfigParser  # Python 3
 from lib_global_python import searchLoggerFile as logger
 from lib_global_python import MQTT_client
 from Git_Repo.api_phidget_n_MQTT.src.lib import phidget22Handler as handler
+#Functions with Arguments---------------------------------------------------
+#Functions to modify the config.cfg-----------------------------------------
+#This function modify the name of the file in the config.cfg
 def NewFile(file,config,fileText):
     config.set('filenameLogger','filename',fileText)
     with open(file,'w') as configfile:
         config.write(configfile)
+#This function modify the directory of the file that you want to read
 def NewPath(file,config,pathText):
     config.set('filenameLogger','folderpath',pathText)
     with open(file,'w') as configfile:
         config.write(configfile)
+#This changes the data interval time the values is between 8ms to 1000ms
 def SetDataInterval(file,config,dataInterval):
     config.set('encoder','datainterval',str(dataInterval))
     with open(file,'w') as configfile:
         config.write(configfile)
+#-----------------------------------------------------------------------------
 def ConnectToEnco(config, encoder0):
     # connect to mqtt broker
     client = MQTT_client.createClient("Encoder", config)
@@ -152,7 +161,7 @@ def PlotData(config):
 
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
-
+# GUI init
 class Ui_Tester(QWidget):
     def setupUi(self, Tester):
         Tester.setObjectName("Tester")
@@ -252,19 +261,22 @@ class Ui_Tester(QWidget):
         self.statusbar = QtWidgets.QStatusBar(Tester)
         self.statusbar.setObjectName("statusbar")
         Tester.setStatusBar(self.statusbar)
-
         self.retranslateUi(Tester)
         QtCore.QMetaObject.connectSlotsByName(Tester)
-        #################################################
+        # Ends of the GUI init------------------------------------------------------------------------------------------
+        #Minimum value of the SpinBox which correspond to the minimum of interval time 8ms
         minValueDataInt=8
+        #Maximum value of the SpinBox which correspond to the maximum of interval time 1000ms
         maxValueDataInt=1000
+        #Init of the encodeur
         encoder0 = Encoder()
-        # import config file
+        # import config file could depending on the name of the config file
         file = 'config.cfg'
         config = ConfigParser.ConfigParser()
         print("opening configuration file : config.cfg")
         config.read(file)
-        # User interaction---------------------------------------------------------------------------------------------------------------------------------------
+        # User interaction----------------------------------------------------------------------------------------------
+        # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
         self.RegisterEnco.stateChanged.connect(self.registerIsOnMessage)
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
@@ -281,10 +293,10 @@ class Ui_Tester(QWidget):
         self.move(qtRectangle.topLeft())
 
     # All coded actions
-    # Functions--------------------------------------------------------------------------------------------------------------------------------------------
+    # Functions without arguments--------------------------------------------------------------------------------------
+    # This functions creates a message box to make the user wants to quit the GUI.
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Quit?', 'Are you sure you want to quit?', QMessageBox.Yes | QMessageBox.No,
-                                     QMessageBox.No)
+        reply = QMessageBox.question(self, 'Quit?', 'Are you sure you want to quit?', QMessageBox.Yes | QMessageBox.No,QMessageBox.No)
         if reply == QMessageBox.Yes:
             if not type(event) == bool:
                 event.accept()
@@ -293,7 +305,7 @@ class Ui_Tester(QWidget):
         else:
             if not type(event) == bool:
                 event.ignore()
-
+    #Create a messagebox when the registring starts or is done
     def registerIsOnMessage(self, int):
         if self.RegisterEnco.isChecked():
             recordIsOn = QMessageBox()
@@ -309,15 +321,13 @@ class Ui_Tester(QWidget):
             recordIsOff.setWindowTitle("Information recording")
             recordIsOff.setStandardButtons(QMessageBox.Ok)
             recordIsOff.exec_()
-
-    def ConnectToEnco(self):
-        print("Hello world")
-
+    #Adds all the title to the object on the GUI
+    #For renaming the objects you do it instead of going trough QT
     def retranslateUi(self, Tester):
         _translate = QtCore.QCoreApplication.translate
         Tester.setWindowTitle(_translate("Tester", "Interface de contrôle"))
         self.groupBox_2.setTitle(_translate("Tester", "Encoder"))
-        self.RegisterEnco.setText(_translate("Tester", "Enrigistrement"))
+        self.RegisterEnco.setText(_translate("Tester", "Enregistrement"))
         self.CloseButton.setText(_translate("Tester", "Fermer"))
         self.groupBox_3.setTitle(_translate("Tester", "Afficher données"))
         self.DisplayPlotButton.setText(_translate("Tester", "Graphique de donnée"))
