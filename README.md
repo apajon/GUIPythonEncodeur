@@ -44,6 +44,11 @@ Also if you want to be sure to have the last version of the submodule use this c
 ```bash
 git submodule update --remote --recursive
 ```
+```bash
+git branch -a
+git checkout -b Rasp-Dev-Final origin/Rasp-Dev-Final 
+```
+
 ## 1.2-Libraries
 ### 1.2.1-Needed Libraries
 - library pyqt5
