@@ -12,7 +12,7 @@ config = ConfigParser.ConfigParser()
 config.read('config.cfg')
 client = MQTT_client.createClient("Encoder", config)
 dataFromFile = np.genfromtxt("Logger_encoder_gel_1cm_v1_00.txt", delimiter=",", names=True)
-clientTopic = config.get('MQTT', 'topic_publish')
+clientTopic = config.get('MQTT', 'topic')
 #print(data)
 t1=dataFromFile["TimeRecording"]
 positionChange=dataFromFile["PositionChange"]
@@ -28,5 +28,7 @@ for i in range(0, len(dataFromFile["TimeRecording"]),1):
     }
     json_string = json.dumps(data)
     client.publish(clientTopic,json.dumps(data))
+    print(data)
+    time.sleep(1)
 
 
