@@ -21,7 +21,9 @@ ____
   - [1.6-Troubleshooting](#16-Troubleshooting)
       - [1.6.2-Empty submodule](#161-Empty-submodule)
       - [1.6.2-libEGL warning](#162-libEGL-warning)
+      - [1.6.3-Consider adding this directory to PATH](#163-Consider-adding-this-directory-to-PATH)
   - [1.7-Create Desktop App](#17-Create-Desktop-App)
+  - [1.8-Create an executable](#17-Create-an-executable)
 
 # 1-Installation procedure
 Before starting this procedure make sure the you have installed the **lib_global_python** and have read the readme file of this repo.
@@ -46,9 +48,8 @@ git submodule update --remote --recursive
 ```
 ```bash
 git branch -a
-git checkout -b Rasp-Dev-Final origin/Rasp-Dev-Final 
+git checkout -b Rasp-Dev-Final origin/Rasp-Dev-Final
 ```
-
 ## 1.2-Libraries
 ### 1.2.1-Needed Libraries
 - library pyqt5
@@ -58,6 +59,7 @@ Open a terminal write down these two command :
 ```bash
 sudo apt-get install python3-pyqt5
 sudo apt-get install python3-pyqt5.qtsql
+pip3 pysintaller
 ```
 ## 1.3-Software
 ### 1.3.1-Needed Software
@@ -126,7 +128,17 @@ GL Driver
 GL (Fake KMS)
 ```
 <!---To do : 2 qt5ct warings--->
-## 1.6-Create Desktop App
+### 1.6.3-Consider adding this directory to PATH
+After running the **pip3** you might this warning :
+```bash
+WARNING: The script pysintaller is installed in /home/pi/.local/bin which is not on PATH.
+Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+```
+Simply run this command to add the directory to path:
+```bash
+echo "export PATH=\"/home/pi/.local/bin:\$PATH\"" >> ~/.bashrc && source ~/.bashrc
+```
+## 1.7-Create Desktop App
 This section is about creating or modifying a desktop app for the GUI. \
 \
 First, verify the first line of the code is:
@@ -164,4 +176,12 @@ Save the changes and close the text editor.\
 \
 Now you can run by double clicking the **Gui.desktop** file.\
 \
-Here is link to a tutorial. [Tutorial: Make a Python Program Executable in Linux](https://www.youtube.com/watch?v=9CTmC5Y7QeM) 
+Here is link to a tutorial. [Tutorial: Make a Python Program Executable in Linux](https://www.youtube.com/watch?v=9CTmC5Y7QeM)
+## 1.8-Create an executable
+Open a terminal in the **GUI** directory.
+```bash
+pyinstaller -F Encoder_Control_GUI.py
+```
+Now you show see a new directory named **dist**. \
+\
+A file **Encoder_Control_GUI.exe** will be inside.
