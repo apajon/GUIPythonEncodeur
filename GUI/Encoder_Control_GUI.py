@@ -181,11 +181,9 @@ def PlotData(config):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
 
-def Savedata(client,config):
-    print(client)
-    print(ui.RegisterEnco.isChecked)
-    time.sleep(0.1)
-    if ui.RegisterEnco.isChecked :
+def Savedata(client,config,isChecked):
+    if isChecked:
+        
         fh = createLoggerFile.createLoggerFile(config)
         client.fh=fh
         client.printLog=config.getboolean('Logger','printLog')
@@ -198,18 +196,21 @@ def Savedata(client,config):
         topic_encoder=config.get('MQTT','topic')
         client.subscribe(topic_encoder)
         
-        try:
-            input("Press Enter to Stop\n")
-        except (Exception, KeyboardInterrupt):
-            print("Logger encoder stopped !")
-        finally:
-            #stop the loop
-            client.loop_stop()
-        
+#         try:
+#             input("Press Enter to Stop\n")
+#         except (Exception, KeyboardInterrupt):
+#             print("Logger encoder stopped !")
+#         finally:
+#             #stop the loop
+#             client.loop_stop()
+#             #fh.close()
+            
         ui.registerIsOnMessage()
     else:
         client.loop_stop()
+        client.fh.close()
         ui.registerIsOnMessage()
+        
 # GUI init
 class Ui_Tester(QWidget):
     def setupUi(self, Tester):
@@ -330,28 +331,10 @@ class Ui_Tester(QWidget):
         config.read(file)
         guiReady = True
         clientLogger=MQTT_client.createClient("LoggerEncoder",config)
-#         fh = createLoggerFile.createLoggerFile(config)        
-#         clientLogger.fh=fh
-#         clientLogger.printLog=config.getboolean('Logger','printLog')
-#         clientLogger.firstLine=config.get('filenameLogger','firstLine')
-#         
-#         clientLogger.on_message=loggerHandler.on_message
-#         clientLogger.loop_start()
-#         
-#         topic_encoder=config.get('MQTT','topic')
-#         clientLogger.subscribe(topic_encoder)
-#         
-#         try:
-#             input("Press Enter to Stop\n")
-#         except (Exception, KeyboardInterrupt):
-#             print("Logger encoder stopped !")
-#         finally:
-#             #stop the loop
-#             clientLogger.loop_stop()
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
-        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger,config))
+        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger,config,self.RegisterEnco.isChecked()))
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
         self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config, self.textEditFile.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config, self.textEditDirectory.toPlainText()))
