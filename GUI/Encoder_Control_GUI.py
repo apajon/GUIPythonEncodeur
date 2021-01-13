@@ -29,10 +29,8 @@ import matplotlib.patches as patches
 import configparser as ConfigParser  # Python 3
 from lib_global_python import searchLoggerFile as logger
 from lib_global_python import MQTT_client
-
 sys.path.append("/home/william/Documents/Cirris/Git_Repo/api_phidget_n_MQTT/src/lib_api_phidget22")
 import phidget22Handler as handler
-
 
 # Functions with Arguments---------------------------------------------------
 # Functions to modify the config.cfg-----------------------------------------
