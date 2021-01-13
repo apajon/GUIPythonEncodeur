@@ -28,9 +28,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import configparser as ConfigParser  # Python 3
-from lib_global_python import searchLoggerFile as logger
+from lib_global_python import searchLoggerFile
+from lib_global_python import createLoggerFile
+from lib_global_python import loggerHandler
 from lib_global_python import MQTT_client
-sys.path.append("/home/pi/Documents/api_phidget_n_MQTT/src/lib_api_phidget22")
+sys.path.append("/home/pi/Documents/api_phidget_n_MQTT_2/src/lib_api_phidget22")
 import phidget22Handler as handler
 
 # Functions with Arguments---------------------------------------------------
@@ -102,7 +104,7 @@ def PlotData(config):
     ############
     # search for the last logger file based on the indentation
     #     filename="Logger_encoder_07.txt"
-    filename = logger.searchLoggerFile(config)
+    filename = searchLoggerFile.searchLoggerFile(config)
     try:
         data = np.genfromtxt(filename, delimiter=",", names=True)
     except:
@@ -179,11 +181,31 @@ def PlotData(config):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
 
-def Savedata(client):
+def Savedata(client,config):
+    print(client)
+    print(ui.RegisterEnco.isChecked)
+    time.sleep(0.1)
     if ui.RegisterEnco.isChecked :
+        fh = createLoggerFile.createLoggerFile(config)
         client.fh=fh
-        client.on_message=loggerHandler.on_message_GUI
+        client.printLog=config.getboolean('Logger','printLog')
+        client.firstLine=config.get('filenameLogger','firstLine')
+        client.saveLog=config.getboolean('Logger','saveLog')
+        
+        client.on_message=loggerHandler.on_message
         client.loop_start()
+        
+        topic_encoder=config.get('MQTT','topic')
+        client.subscribe(topic_encoder)
+        
+        try:
+            input("Press Enter to Stop\n")
+        except (Exception, KeyboardInterrupt):
+            print("Logger encoder stopped !")
+        finally:
+            #stop the loop
+            client.loop_stop()
+        
         ui.registerIsOnMessage()
     else:
         client.loop_stop()
@@ -307,10 +329,29 @@ class Ui_Tester(QWidget):
         print("opening configuration file : config.cfg")
         config.read(file)
         guiReady = True
+        clientLogger=MQTT_client.createClient("LoggerEncoder",config)
+#         fh = createLoggerFile.createLoggerFile(config)        
+#         clientLogger.fh=fh
+#         clientLogger.printLog=config.getboolean('Logger','printLog')
+#         clientLogger.firstLine=config.get('filenameLogger','firstLine')
+#         
+#         clientLogger.on_message=loggerHandler.on_message
+#         clientLogger.loop_start()
+#         
+#         topic_encoder=config.get('MQTT','topic')
+#         clientLogger.subscribe(topic_encoder)
+#         
+#         try:
+#             input("Press Enter to Stop\n")
+#         except (Exception, KeyboardInterrupt):
+#             print("Logger encoder stopped !")
+#         finally:
+#             #stop the loop
+#             clientLogger.loop_stop()
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
-        self.RegisterEnco.stateChanged.connect(lambda: Savedata(client))
+        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger,config))
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
         self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config, self.textEditFile.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config, self.textEditDirectory.toPlainText()))
