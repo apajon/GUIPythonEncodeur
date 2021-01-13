@@ -22,6 +22,7 @@ from Phidget22.Devices.Log import *
 from Phidget22.LogLevel import *
 from Phidget22.PhidgetException import *
 import traceback
+import time
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,7 +30,7 @@ import matplotlib.patches as patches
 import configparser as ConfigParser  # Python 3
 from lib_global_python import searchLoggerFile as logger
 from lib_global_python import MQTT_client
-sys.path.append("/home/william/Documents/Cirris/Git_Repo/api_phidget_n_MQTT/src/lib_api_phidget22")
+sys.path.append("/home/pi/Documents/api_phidget_n_MQTT/src/lib_api_phidget22")
 import phidget22Handler as handler
 
 # Functions with Arguments---------------------------------------------------
@@ -56,7 +57,7 @@ def SetDataInterval(file, config, dataInterval):
 
 
 # -----------------------------------------------------------------------------
-def ConnectToEnco(self, config, encoder0, connectionStatus):
+def ConnectToEnco(self, config, encoder0):
     # connect to mqtt broker
     client = MQTT_client.createClient("Encoder", config)
 
@@ -64,8 +65,6 @@ def ConnectToEnco(self, config, encoder0, connectionStatus):
     # connection to Phidget encoder and wait for measures
     # publish the datas on config/MQTT/topic
     try:
-        connectionStatus = True
-        self.ConnectionStatusMessage(connectionStatus)
         Log.enable(LogLevel.PHIDGET_LOG_INFO, "phidgetlog.log")
         # Create your Phidget channels
         # Set addressing parameters to specify
@@ -80,19 +79,18 @@ def ConnectToEnco(self, config, encoder0, connectionStatus):
         encoder0.setOnDetachHandler(handler.onDetach)
         # Open your Phidgets and wait for attachment
         encoder0.openWaitForAttachment(5000)
-
+        ui.connectionSucces()
     except PhidgetException as ex:
-        connectionStatus = False
+        ui.connectionFail()
         # We will catch Phidget Exceptions here, and print the error informaiton.
         traceback.print_exc()
         print("")
         print("PhidgetException " + str(ex.code) + " (" + ex.description + "): " + ex.details)
 
 
-def DisconnectEnco(encoder0, connectionStatus):
+def DisconnectEnco(encoder0):
     encoder0.close()
-    connectionStatus = False
-
+    ui.disconnectedEnco()
 
 def PlotData(config):
     ############
@@ -105,8 +103,11 @@ def PlotData(config):
     # search for the last logger file based on the indentation
     #     filename="Logger_encoder_07.txt"
     filename = logger.searchLoggerFile(config)
-    data = np.genfromtxt(filename, delimiter=",", names=True)
-
+    try:
+        data = np.genfromtxt(filename, delimiter=",", names=True)
+    except:
+        ui.FailedFile()
+        return
     # convert the number of pulse position change into mm
     PositionChange_mm = data['PositionChange'] * Encoder_mm_per_Pulse
 
@@ -178,7 +179,15 @@ def PlotData(config):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
 
-
+def Savedata(client):
+    if ui.RegisterEnco.isChecked :
+        client.fh=fh
+        client.on_message=loggerHandler.on_message_GUI
+        client.loop_start()
+        ui.registerIsOnMessage()
+    else:
+        client.loop_stop()
+        ui.registerIsOnMessage()
 # GUI init
 class Ui_Tester(QWidget):
     def setupUi(self, Tester):
@@ -301,15 +310,15 @@ class Ui_Tester(QWidget):
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
-        self.RegisterEnco.stateChanged.connect(self.registerIsOnMessage)
+        self.RegisterEnco.stateChanged.connect(lambda: Savedata(client))
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
         self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config, self.textEditFile.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config, self.textEditDirectory.toPlainText()))
-        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(config, encoder0, connectionStatus))
-        self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(encoder0, connectionStatus))
+        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(self,config, encoder0))
+        self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(self,encoder0))
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
         self.DataIntervalButton.clicked.connect(lambda: SetDataInterval(file, config, self.spinBox.value()))
-
+        self.DisplayData.clicked.connect(self.TestLCD)
     def centerOnScreen(self):
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
@@ -332,7 +341,7 @@ class Ui_Tester(QWidget):
                 event.ignore()
 
     # Create a messagebox when the registring starts or is done
-    def registerIsOnMessage(self, int):
+    def registerIsOnMessage(self):
         if self.RegisterEnco.isChecked():
             recordIsOn = QMessageBox()
             recordIsOn.setIcon(QMessageBox.Information)
@@ -347,16 +356,51 @@ class Ui_Tester(QWidget):
             recordIsOff.setWindowTitle("Information recording")
             recordIsOff.setStandardButtons(QMessageBox.Ok)
             recordIsOff.exec_()
-
-    def ConnectionStatusMessage(self, connectionStatus):
-        StatusMessage = QMessageBox
-        StatusMessage.setIcon(QMessageBox.Information)
-        StatusMessage.setWindowTitle("Connection status")
-        if connectionStatus == True:
-            StatusMessage.setText("Connected to Encoder")
-        else:
-            StatusMessage.setText("Connection to Encoder Failed")
-
+    def connectionSucces(self):
+        connectionIsSucces=QMessageBox()
+        connectionIsSucces.setIcon(QMessageBox.Information)
+        connectionIsSucces.setText("Connection succed")
+        connectionIsSucces.setWindowTitle("Encoder")
+        connectionIsSucces.setStandardButtons(QMessageBox.Ok)
+        connectionIsSucces.exec_()
+    def connectionFail(self):
+        connectionIsFailed=QMessageBox()
+        connectionIsFailed.setIcon(QMessageBox.Warning)
+        connectionIsFailed.setText("Connection failed")
+        connectionIsFailed.setWindowTitle("Encoder")
+        connectionIsFailed.setStandardButtons(QMessageBox.Ok)
+        connectionIsFailed.exec_()
+    def disconnectedEnco(self):
+        disconnected=QMessageBox()
+        disconnected.setIcon(QMessageBox.Information)
+        disconnected.setText("Connection failed")
+        disconnected.setWindowTitle("Encoder")
+        disconnected.setStandardButtons(QMessageBox.Ok)
+        disconnected.exec_()
+    def FailedFile(self):
+        FailedFileMessage = QMessageBox()
+        FailedFileMessage.setIcon(QMessageBox.Information)
+        FailedFileMessage.setWindowTitle("Error")
+        FailedFileMessage.setText("Unable to find file")
+        FailedFileMessage.setStandardButtons(QMessageBox.Ok)
+        FailedFileMessage.exec_()
+    def TestLCD(self):
+        dataFromFile = np.genfromtxt("Logger_encoder_gel_1cm_v1_00.txt", delimiter=",", names=True)  
+        t1=dataFromFile["TimeRecording"]
+        positionChange=dataFromFile["PositionChange"]
+        timeChange=dataFromFile["TimeChange"]
+        indexTriggered=dataFromFile["IndexTriggered"]
+      
+        for i in range(0, len(dataFromFile["TimeRecording"]),1):
+            self.lcdTimeRecording.display(t1[i])
+            self.lcdTimeRecording.repaint()
+            self.lcdPositionChange.display(positionChange[i])
+            self.lcdPositionChange.repaint()
+            self.lcdTimeChange.display(timeChange[i])
+            self.lcdTimeChange.repaint()
+            self.lcdIndexTriggered.display(indexTriggered[i])
+            self.lcdIndexTriggered.repaint()
+            time.sleep(0.3)
     # Adds all the title to the object on the GUI
     # For renaming the objects you do it instead of going trough QT
     def retranslateUi(self, Tester):
