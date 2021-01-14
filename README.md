@@ -61,7 +61,7 @@ sudo apt-get install python3-pyqt5.qtsql
 #### library phidget installation
 Open a terminal write down these two command :
 ```bash
-pip3 pysintaller
+pip3 install pysintaller
 ```
 ## 1.3-Software
 ### 1.3.1-Needed Software
