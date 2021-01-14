@@ -59,10 +59,7 @@ def SetDataInterval(file, config, dataInterval):
 
 
 # -----------------------------------------------------------------------------
-def ConnectToEnco(self, config, encoder0):
-    # connect to mqtt broker
-    client = MQTT_client.createClient("Encoder", config)
-
+def ConnectToEnco(client, config, encoder0):
     ############
     # connection to Phidget encoder and wait for measures
     # publish the datas on config/MQTT/topic
@@ -92,6 +89,7 @@ def ConnectToEnco(self, config, encoder0):
 
 def DisconnectEnco(encoder0):
     encoder0.close()
+    encoder0.client.loop_stop()
     ui.disconnectedEnco()
 
 def PlotData(config):
@@ -204,12 +202,11 @@ def Savedata(client,config,isChecked):
 #             #stop the loop
 #             client.loop_stop()
 #             #fh.close()
-            
-        ui.registerIsOnMessage()
     else:
         client.loop_stop()
         client.fh.close()
-        ui.registerIsOnMessage()
+
+    ui.registerIsOnMessage()
         
 # GUI init
 class Ui_Tester(QWidget):
@@ -331,6 +328,8 @@ class Ui_Tester(QWidget):
         config.read(file)
         guiReady = True
         clientLogger=MQTT_client.createClient("LoggerEncoder",config)
+        clientEncoder = MQTT_client.createClient("Encoder", config)
+
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
@@ -338,7 +337,7 @@ class Ui_Tester(QWidget):
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
         self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config, self.textEditFile.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config, self.textEditDirectory.toPlainText()))
-        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(self,config, encoder0))
+        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder,config, encoder0))
         self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(self,encoder0))
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
         self.DataIntervalButton.clicked.connect(lambda: SetDataInterval(file, config, self.spinBox.value()))
