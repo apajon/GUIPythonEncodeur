@@ -53,12 +53,14 @@ git checkout -b Rasp-Dev-Final origin/Rasp-Dev-Final
 ## 1.2-Libraries
 ### 1.2.1-Needed Libraries
 - library pyqt5
+```bash
+sudo apt-get install python3-pyqt5
+sudo apt-get install python3-pyqt5.qtsql
+```
 ### 1.2.2-Install Libraries
 #### library phidget installation
 Open a terminal write down these two command :
 ```bash
-sudo apt-get install python3-pyqt5
-sudo apt-get install python3-pyqt5.qtsql
 pip3 pysintaller
 ```
 ## 1.3-Software
