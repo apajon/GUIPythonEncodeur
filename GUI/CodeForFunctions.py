@@ -22,32 +22,46 @@ from Phidget22.Devices.Log import *
 from Phidget22.LogLevel import *
 from Phidget22.PhidgetException import *
 import traceback
+import time
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import configparser as ConfigParser  # Python 3
-from lib_global_python import searchLoggerFile as logger
+from lib_global_python import searchLoggerFile
+from lib_global_python import createLoggerFile
+from lib_global_python import loggerHandler
 from lib_global_python import MQTT_client
-
-sys.path.append("/home/william/Documents/Cirris/Git_Repo/api_phidget_n_MQTT/src/lib_api_phidget22")
+import os
+sys.path.append("/home/pi/Documents/api_phidget_n_MQTT/src/lib_api_phidget22")
 import phidget22Handler as handler
-
 
 # Functions with Arguments---------------------------------------------------
 # Functions to modify the config.cfg-----------------------------------------
 # This function modify the name of the file in the config.cfg
-def NewFile(file, config, fileText):
-    config.set('filenameLogger', 'filename', fileText)
-    with open(file, 'w') as configfile:
-        config.write(configfile)
+def NewFile(file, config, fileText): 
+    if not fileText:
+        fileText ="Measures_ "
+        config.set('filenameLogger', 'filename', fileText)
+        with open(file, 'w') as configfile:
+            config.write(configfile)
+    else:
+        config.set('filenameLogger', 'filename', fileText)
+        with open(file, 'w') as configfile:
+            config.write(configfile)
 
 
 # This function modify the directory of the file that you want to read
 def NewPath(file, config, pathText):
-    config.set('filenameLogger', 'folderpath', pathText)
-    with open(file, 'w') as configfile:
-        config.write(configfile)
+    if not pathText:
+        pathText="./save_measures/"
+        config.set('filenameLogger', 'folderpath', pathText)
+        with open(file, 'w') as configfile:
+            config.write(configfile)
+    else:
+        config.set('filenameLogger', 'folderpath', pathText)
+        with open(file, 'w') as configfile:
+            config.write(configfile)
 
 
 # This changes the data interval time the values is between 8ms to 1000ms
@@ -58,16 +72,11 @@ def SetDataInterval(file, config, dataInterval):
 
 
 # -----------------------------------------------------------------------------
-def ConnectToEnco(self, config, encoder0, connectionStatus):
-    # connect to mqtt broker
-    client = MQTT_client.createClient("Encoder", config)
-
+def ConnectToEnco(client, config, encoder0):
     ############
     # connection to Phidget encoder and wait for measures
     # publish the datas on config/MQTT/topic
     try:
-        connectionStatus = True
-        self.ConnectionStatusMessage(connectionStatus)
         Log.enable(LogLevel.PHIDGET_LOG_INFO, "phidgetlog.log")
         # Create your Phidget channels
         # Set addressing parameters to specify
@@ -82,19 +91,19 @@ def ConnectToEnco(self, config, encoder0, connectionStatus):
         encoder0.setOnDetachHandler(handler.onDetach)
         # Open your Phidgets and wait for attachment
         encoder0.openWaitForAttachment(5000)
-
+        ui.connectionSucces()
     except PhidgetException as ex:
-        connectionStatus = False
+        ui.connectionFail()
         # We will catch Phidget Exceptions here, and print the error informaiton.
         traceback.print_exc()
         print("")
         print("PhidgetException " + str(ex.code) + " (" + ex.description + "): " + ex.details)
 
 
-def DisconnectEnco(encoder0, connectionStatus):
+def DisconnectEnco(encoder0):
     encoder0.close()
-    connectionStatus = False
-
+    encoder0.client.loop_stop()
+    ui.disconnectedEnco()
 
 def PlotData(config):
     ############
@@ -106,9 +115,12 @@ def PlotData(config):
     ############
     # search for the last logger file based on the indentation
     #     filename="Logger_encoder_07.txt"
-    filename = logger.searchLoggerFile(config)
-    data = np.genfromtxt(filename, delimiter=",", names=True)
-
+    filename = searchLoggerFile.searchLoggerFile(config)
+    try:
+        data = np.genfromtxt(filename, delimiter=",", names=True)
+    except:
+        ui.FailedFile()
+        return
     # convert the number of pulse position change into mm
     PositionChange_mm = data['PositionChange'] * Encoder_mm_per_Pulse
 
@@ -180,7 +192,35 @@ def PlotData(config):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
 
-
+def Savedata(client,config,isChecked):
+    if isChecked:
+        
+        fh = createLoggerFile.createLoggerFile(config)
+        client.fh=fh
+        client.printLog=config.getboolean('Logger','printLog')
+        client.firstLine=config.get('filenameLogger','firstLine')
+        client.saveLog=config.getboolean('Logger','saveLog')
+        
+        client.on_message=loggerHandler.on_message
+        client.loop_start()
+        
+        topic_encoder=config.get('MQTT','topic')
+        client.subscribe(topic_encoder)
+        ui.RecordingEnco.setValue(100)
+#         try:
+#             input("Press Enter to Stop\n")
+#         except (Exception, KeyboardInterrupt):
+#             print("Logger encoder stopped !")
+#         finally:
+#             #stop the loop
+#             client.loop_stop()
+#             #fh.close()
+    else:
+        client.loop_stop()
+        client.fh.close()
+        ui.RecordingEnco.setValue(0)
+    ui.registerIsOnMessage()
+        
 # GUI init
 class Ui_Tester(QWidget):
     def setupUi(self, Tester):
@@ -199,56 +239,59 @@ class Ui_Tester(QWidget):
         self.RecordingEnco.setOrientation(QtCore.Qt.Horizontal)
         self.RecordingEnco.setObjectName("RecordingEnco")
         self.RegisterEnco = QtWidgets.QCheckBox(self.groupBox_2)
-        self.RegisterEnco.setGeometry(QtCore.QRect(10, 50, 92, 23))
+        self.RegisterEnco.setGeometry(QtCore.QRect(10, 50, 141, 23))
         self.RegisterEnco.setObjectName("RegisterEnco")
         self.CloseButton = QtWidgets.QPushButton(self.centralwidget)
         self.CloseButton.setGeometry(QtCore.QRect(580, 470, 89, 25))
         self.CloseButton.setObjectName("CloseButton")
         self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QtCore.QRect(10, 0, 181, 391))
+        self.groupBox_3.setGeometry(QtCore.QRect(10, 0, 181, 441))
         self.groupBox_3.setObjectName("groupBox_3")
         self.DisplayPlotButton = QtWidgets.QPushButton(self.groupBox_3)
-        self.DisplayPlotButton.setGeometry(QtCore.QRect(10, 350, 161, 25))
+        self.DisplayPlotButton.setGeometry(QtCore.QRect(10, 400, 161, 25))
         self.DisplayPlotButton.setObjectName("DisplayPlotButton")
-        self.lcdNumber = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdNumber.setGeometry(QtCore.QRect(10, 40, 141, 51))
-        self.lcdNumber.setObjectName("lcdNumber")
+        self.lcdTimeRecording = QtWidgets.QLCDNumber(self.groupBox_3)
+        self.lcdTimeRecording.setGeometry(QtCore.QRect(10, 40, 141, 51))
+        self.lcdTimeRecording.setObjectName("lcdTimeRecording")
         self.label_3 = QtWidgets.QLabel(self.groupBox_3)
         self.label_3.setGeometry(QtCore.QRect(10, 90, 161, 17))
         self.label_3.setObjectName("label_3")
-        self.lcdNumber_2 = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdNumber_2.setGeometry(QtCore.QRect(10, 110, 141, 51))
-        self.lcdNumber_2.setObjectName("lcdNumber_2")
+        self.lcdPositionChange = QtWidgets.QLCDNumber(self.groupBox_3)
+        self.lcdPositionChange.setGeometry(QtCore.QRect(10, 110, 141, 51))
+        self.lcdPositionChange.setObjectName("lcdPositionChange")
         self.label_4 = QtWidgets.QLabel(self.groupBox_3)
         self.label_4.setGeometry(QtCore.QRect(10, 160, 161, 17))
         self.label_4.setObjectName("label_4")
-        self.lcdNumber_3 = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdNumber_3.setGeometry(QtCore.QRect(10, 180, 141, 51))
-        self.lcdNumber_3.setObjectName("lcdNumber_3")
-        self.lcdNumber_4 = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdNumber_4.setGeometry(QtCore.QRect(10, 250, 141, 51))
-        self.lcdNumber_4.setObjectName("lcdNumber_4")
+        self.lcdTimeChange = QtWidgets.QLCDNumber(self.groupBox_3)
+        self.lcdTimeChange.setGeometry(QtCore.QRect(10, 180, 141, 51))
+        self.lcdTimeChange.setObjectName("lcdTimeChange")
+        self.lcdIndexTriggered = QtWidgets.QLCDNumber(self.groupBox_3)
+        self.lcdIndexTriggered.setGeometry(QtCore.QRect(10, 250, 141, 51))
+        self.lcdIndexTriggered.setObjectName("lcdIndexTriggered")
         self.label_5 = QtWidgets.QLabel(self.groupBox_3)
         self.label_5.setGeometry(QtCore.QRect(10, 230, 161, 17))
         self.label_5.setObjectName("label_5")
         self.label_6 = QtWidgets.QLabel(self.groupBox_3)
         self.label_6.setGeometry(QtCore.QRect(10, 300, 161, 17))
         self.label_6.setObjectName("label_6")
+        self.DisplayData = QtWidgets.QPushButton(self.groupBox_3)
+        self.DisplayData.setGeometry(QtCore.QRect(10, 340, 161, 25))
+        self.DisplayData.setObjectName("DisplayData")
         self.groupBox_4 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_4.setGeometry(QtCore.QRect(400, 0, 271, 401))
         self.groupBox_4.setObjectName("groupBox_4")
-        self.textEdit = QtWidgets.QTextEdit(self.groupBox_4)
-        self.textEdit.setGeometry(QtCore.QRect(10, 50, 251, 70))
-        self.textEdit.setObjectName("textEdit")
+        self.textEditFile = QtWidgets.QTextEdit(self.groupBox_4)
+        self.textEditFile.setGeometry(QtCore.QRect(10, 50, 251, 70))
+        self.textEditFile.setObjectName("textEditFile")
         self.label = QtWidgets.QLabel(self.groupBox_4)
         self.label.setGeometry(QtCore.QRect(10, 30, 67, 17))
         self.label.setObjectName("label")
         self.FileConfirmButton = QtWidgets.QPushButton(self.groupBox_4)
         self.FileConfirmButton.setGeometry(QtCore.QRect(10, 130, 251, 25))
         self.FileConfirmButton.setObjectName("FileConfirmButton")
-        self.textEdit_2 = QtWidgets.QTextEdit(self.groupBox_4)
-        self.textEdit_2.setGeometry(QtCore.QRect(10, 200, 251, 70))
-        self.textEdit_2.setObjectName("textEdit_2")
+        self.textEditDirectory = QtWidgets.QTextEdit(self.groupBox_4)
+        self.textEditDirectory.setGeometry(QtCore.QRect(10, 200, 251, 70))
+        self.textEditDirectory.setObjectName("textEditDirectory")
         self.DirectoryConfirmB = QtWidgets.QPushButton(self.groupBox_4)
         self.DirectoryConfirmB.setGeometry(QtCore.QRect(10, 280, 251, 25))
         self.DirectoryConfirmB.setObjectName("DirectoryConfirmB")
@@ -297,18 +340,25 @@ class Ui_Tester(QWidget):
         print("opening configuration file : config.cfg")
         config.read(file)
         guiReady = True
+        clientLogger=MQTT_client.createClient("LoggerEncoder",config)
+        clientEncoder = MQTT_client.createClient("Encoder", config)
+        self.RecordingEnco.setRange(0,100)
+        self.textEditFile.setPlainText("Measures_")
+        self.textEditDirectory.setPlainText("./save_measures/")
+        if not os.path.exists("save_measures"):
+            os.makedirs('save_measures')
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
-        self.RegisterEnco.stateChanged.connect(self.registerIsOnMessage)
+        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger,config,self.updateStatus()))
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
         self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config, self.textEditFile.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config, self.textEditDirectory.toPlainText()))
-        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(config, encoder0, connectionStatus))
-        self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(encoder0, connectionStatus))
+        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder,config, encoder0))
+        self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(self,encoder0))
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
         self.DataIntervalButton.clicked.connect(lambda: SetDataInterval(file, config, self.spinBox.value()))
-
+        self.DisplayData.clicked.connect(self.TestLCD)
     def centerOnScreen(self):
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
@@ -331,7 +381,7 @@ class Ui_Tester(QWidget):
                 event.ignore()
 
     # Create a messagebox when the registring starts or is done
-    def registerIsOnMessage(self, int):
+    def registerIsOnMessage(self):
         if self.RegisterEnco.isChecked():
             recordIsOn = QMessageBox()
             recordIsOn.setIcon(QMessageBox.Information)
@@ -346,16 +396,56 @@ class Ui_Tester(QWidget):
             recordIsOff.setWindowTitle("Information recording")
             recordIsOff.setStandardButtons(QMessageBox.Ok)
             recordIsOff.exec_()
-
-    def ConnectionStatusMessage(self, connectionStatus):
-        StatusMessage = QMessageBox
-        StatusMessage.setIcon(QMessageBox.Information)
-        StatusMessage.setWindowTitle("Connection status")
-        if connectionStatus == True:
-            StatusMessage.setText("Connected to Encoder")
+    def connectionSucces(self):
+        connectionIsSucces=QMessageBox()
+        connectionIsSucces.setIcon(QMessageBox.Information)
+        connectionIsSucces.setText("Connection succed")
+        connectionIsSucces.setWindowTitle("Encoder")
+        connectionIsSucces.setStandardButtons(QMessageBox.Ok)
+        connectionIsSucces.exec_()
+    def connectionFail(self):
+        connectionIsFailed=QMessageBox()
+        connectionIsFailed.setIcon(QMessageBox.Warning)
+        connectionIsFailed.setText("Connection failed")
+        connectionIsFailed.setWindowTitle("Encoder")
+        connectionIsFailed.setStandardButtons(QMessageBox.Ok)
+        connectionIsFailed.exec_()
+    def disconnectedEnco(self):
+        disconnected=QMessageBox()
+        disconnected.setIcon(QMessageBox.Information)
+        disconnected.setText("Connection failed")
+        disconnected.setWindowTitle("Encoder")
+        disconnected.setStandardButtons(QMessageBox.Ok)
+        disconnected.exec_()
+    def FailedFile(self):
+        FailedFileMessage = QMessageBox()
+        FailedFileMessage.setIcon(QMessageBox.Information)
+        FailedFileMessage.setWindowTitle("Error")
+        FailedFileMessage.setText("Unable to find file")
+        FailedFileMessage.setStandardButtons(QMessageBox.Ok)
+        FailedFileMessage.exec_()
+    def TestLCD(self):
+        dataFromFile = np.genfromtxt("Logger_encoder_gel_1cm_v1_00.txt", delimiter=",", names=True)  
+        t1=dataFromFile["TimeRecording"]
+        positionChange=dataFromFile["PositionChange"]
+        timeChange=dataFromFile["TimeChange"]
+        indexTriggered=dataFromFile["IndexTriggered"]
+      
+        for i in range(0, len(dataFromFile["TimeRecording"]),1):
+            self.lcdTimeRecording.display(t1[i])
+            self.lcdTimeRecording.repaint()
+            self.lcdPositionChange.display(positionChange[i])
+            self.lcdPositionChange.repaint()
+            self.lcdTimeChange.display(timeChange[i])
+            self.lcdTimeChange.repaint()
+            self.lcdIndexTriggered.display(indexTriggered[i])
+            self.lcdIndexTriggered.repaint()
+            time.sleep(0.3)
+    def updateStatus(self):
+        if self.RegisterEnco.isChecked():
+            return True
         else:
-            StatusMessage.setText("Connection to Encoder Failed")
-
+            return False
     # Adds all the title to the object on the GUI
     # For renaming the objects you do it instead of going trough QT
     def retranslateUi(self, Tester):
@@ -370,6 +460,7 @@ class Ui_Tester(QWidget):
         self.label_4.setText(_translate("Tester", "Position Change"))
         self.label_5.setText(_translate("Tester", "Time change"))
         self.label_6.setText(_translate("Tester", "Index Triggered"))
+        self.DisplayData.setText(_translate("Tester", "Afficher données"))
         self.groupBox_4.setTitle(_translate("Tester", "Fichier"))
         self.label.setText(_translate("Tester", "Fichier"))
         self.FileConfirmButton.setText(_translate("Tester", "Confirmer"))
