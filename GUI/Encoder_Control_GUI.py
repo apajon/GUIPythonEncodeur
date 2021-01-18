@@ -317,6 +317,7 @@ class Ui_Tester(QWidget):
         self.ToDisconnectButton.setGeometry(QtCore.QRect(10, 70, 171, 31))
         self.ToDisconnectButton.setObjectName("ToDisconnectButton")
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
+        self.label_8.setOpenExternalLinks(True)
         self.label_8.setGeometry(QtCore.QRect(10, 480, 441, 17))
         self.label_8.setObjectName("label_8")
         Tester.setCentralWidget(self.centralwidget)
@@ -327,11 +328,12 @@ class Ui_Tester(QWidget):
         self.statusbar = QtWidgets.QStatusBar(Tester)
         self.statusbar.setObjectName("statusbar")
         Tester.setStatusBar(self.statusbar)
-
+        
         self.retranslateUi(Tester)
         QtCore.QMetaObject.connectSlotsByName(Tester)
 
         # Ends of the GUI init------------------------------------------------------------------------------------------
+        self.label_8.setOpenExternalLinks(True)
         # Minimum value of the SpinBox which correspond to the minimum of interval time 8ms
         minValueDataInt = 8
         # Maximum value of the SpinBox which correspond to the maximum of interval time 1000ms
@@ -485,8 +487,7 @@ class Ui_Tester(QWidget):
         self.groupBox_5.setTitle(_translate("Tester", "Connectivité"))
         self.ToConnectButton.setText(_translate("Tester", "Lancer connexion"))
         self.ToDisconnectButton.setText(_translate("Tester", "Déconnexion"))
-        self.label_8.setText(_translate("Tester", "https://github.com/WilliamBonilla62/GUIPythonEncodeur"))
-
+        self.label_8.setText(_translate("Tester",'<a href="https://github.com/WilliamBonilla62/GUIPythonEncodeur/">https://github.com/WilliamBonilla62/GUIPythonEncodeur/</a>'))
 
 if __name__ == "__main__":
     import sys
