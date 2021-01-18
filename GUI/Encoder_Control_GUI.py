@@ -32,23 +32,36 @@ from lib_global_python import searchLoggerFile
 from lib_global_python import createLoggerFile
 from lib_global_python import loggerHandler
 from lib_global_python import MQTT_client
-sys.path.append("/home/pi/Documents/api_phidget_n_MQTT_2/src/lib_api_phidget22")
+import os
+sys.path.append("/home/pi/Documents/api_phidget_n_MQTT/src/lib_api_phidget22")
 import phidget22Handler as handler
 
 # Functions with Arguments---------------------------------------------------
 # Functions to modify the config.cfg-----------------------------------------
 # This function modify the name of the file in the config.cfg
-def NewFile(file, config, fileText):
-    config.set('filenameLogger', 'filename', fileText)
-    with open(file, 'w') as configfile:
-        config.write(configfile)
+def NewFile(file, config, fileText): 
+    if not fileText:
+        fileText ="Measures_ "
+        config.set('filenameLogger', 'filename', fileText)
+        with open(file, 'w') as configfile:
+            config.write(configfile)
+    else:
+        config.set('filenameLogger', 'filename', fileText)
+        with open(file, 'w') as configfile:
+            config.write(configfile)
 
 
 # This function modify the directory of the file that you want to read
 def NewPath(file, config, pathText):
-    config.set('filenameLogger', 'folderpath', pathText)
-    with open(file, 'w') as configfile:
-        config.write(configfile)
+    if not pathText:
+        pathText="./save_measures/"
+        config.set('filenameLogger', 'folderpath', pathText)
+        with open(file, 'w') as configfile:
+            config.write(configfile)
+    else:
+        config.set('filenameLogger', 'folderpath', pathText)
+        with open(file, 'w') as configfile:
+            config.write(configfile)
 
 
 # This changes the data interval time the values is between 8ms to 1000ms
@@ -193,7 +206,7 @@ def Savedata(client,config,isChecked):
         
         topic_encoder=config.get('MQTT','topic')
         client.subscribe(topic_encoder)
-        
+        ui.RecordingEnco.setValue(100)
 #         try:
 #             input("Press Enter to Stop\n")
 #         except (Exception, KeyboardInterrupt):
@@ -205,7 +218,7 @@ def Savedata(client,config,isChecked):
     else:
         client.loop_stop()
         client.fh.close()
-
+        ui.RecordingEnco.setValue(0)
     ui.registerIsOnMessage()
         
 # GUI init
@@ -329,11 +342,15 @@ class Ui_Tester(QWidget):
         guiReady = True
         clientLogger=MQTT_client.createClient("LoggerEncoder",config)
         clientEncoder = MQTT_client.createClient("Encoder", config)
-
+        self.RecordingEnco.setRange(0,100)
+        self.textEditFile.setPlainText("Measures_")
+        self.textEditDirectory.setPlainText("./save_measures/")
+        if not os.path.exists("save_measures"):
+            os.makedirs('save_measures')
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
-        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger,config,self.RegisterEnco.isChecked()))
+        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger,config,self.updateStatus()))
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
         self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config, self.textEditFile.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config, self.textEditDirectory.toPlainText()))
@@ -424,6 +441,11 @@ class Ui_Tester(QWidget):
             self.lcdIndexTriggered.display(indexTriggered[i])
             self.lcdIndexTriggered.repaint()
             time.sleep(0.3)
+    def updateStatus(self):
+        if self.RegisterEnco.isChecked():
+            return True
+        else:
+            return False
     # Adds all the title to the object on the GUI
     # For renaming the objects you do it instead of going trough QT
     def retranslateUi(self, Tester):
