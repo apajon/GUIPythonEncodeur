@@ -43,6 +43,53 @@ from api_phidget_n_MQTT.src.lib_global_python import loggerHandler
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
 
 # -----------------------------------------------------------------------------
+class Enco:
+    def __init__(self):
+        self.encoder = Encoder()
+        self.isConnected = False
+
+    def ConnectToEnco(self, config):
+        ############
+        # connection to Phidget encoder and wait for measures
+        # publish the datas on config/MQTT/topic
+        try:
+            Log.enable(LogLevel.PHIDGET_LOG_INFO, "phidgetlog.log")
+            # Create your Phidget channels
+            # Set addressing parameters to specify
+            self.encoder.printLog = config.getboolean('encoder', 'printLog')
+            self.encoder.chooseDataInterval = config.getint('encoder', 'dataInterval')
+
+            # Assign any event handlers you need before calling open so that no events are missed.
+            self.encoder.setOnPositionChangeHandler(handler.onPositionChange)
+            self.encoder.setOnAttachHandler(handler.onAttach)
+            self.encoder.setOnDetachHandler(handler.onDetach)
+            # Open your Phidgets and wait for attachment
+            self.encoder.openWaitForAttachment(5000)
+            self.isConnected = True
+        except PhidgetException as ex:
+            self.isConnected = False
+            # We will catch Phidget Exceptions here, and print the error informaiton.
+            traceback.print_exc()
+            print("")
+            print("PhidgetException " + str(ex.code) + " (" + ex.description + "): " + ex.details)
+
+    def DisconnectEnco(self):
+        self.encoder.close()
+
+class EncoWthMQTT(Enco):
+    def __init__(self,config):
+        super().__init__()
+        clientEncoder = MQTT_client.createClient("Encoder", config)
+        self.encoder.clientEncoder = clientEncoder
+
+    def ConnectToEnco(self, config):
+        self.encoder.clientTopic = config.get('encoder', 'topic_publish')
+        super().ConnectToEnco(config)
+
+    def DisconnectEnco(self):
+        super().DisconnectEnco()
+        self.encoder.clientEncoder.loop_stop()
+
 def ConnectToEnco(client, config, encoder0):
     ############
     # connection to Phidget encoder and wait for measures
@@ -316,12 +363,13 @@ class Ui_Tester(QWidget):
         # Maximum value of the SpinBox which correspond to the maximum of interval time 1000ms
         maxValueDataInt = 1000
         # Init of the encodeur
-        encoder0 = Encoder()
+        # encoder0 = Encoder()
+        encoderWthMQTT = EncoWthMQTT(config.configuration())
         connectionStatus = False
         guiReady = True
         clientLogger = MQTT_client.createClient("LoggerEncoder", config.configuration())
         clientEncoder = MQTT_client.createClient("Encoder", config.configuration())
-        encoder0.client = clientEncoder
+        # encoder0.client = clientEncoder
         self.RecordingEnco.setRange(0, 100)
         self.textEditFile.setPlainText("Measures_")
         self.textEditDirectory.setPlainText("./save_measures/")
@@ -334,7 +382,9 @@ class Ui_Tester(QWidget):
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config.configuration()))
         self.FileConfirmButton.clicked.connect(lambda: config.NewFile(self.textEditFile.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: config.NewPath(self.textEditDirectory.toPlainText()))
-        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder, config.configuration(), encoder0))
+        # self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder, config.configuration(), encoder0))
+        # self.ToConnectButton.clicked.connect(lambda: encoderWthMQTT.ConnectToEnco(config.configuration()))
+        self.ToConnectButton.clicked.connect(self.ConnectToEnco)
         # self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(encoder0))
         self.ToDisconnectButton.clicked.connect(self.DisconnectEnco)
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
@@ -369,10 +419,16 @@ class Ui_Tester(QWidget):
         else:
             self.informationMessageBox("Information recording","Recording is finished")
 
+    def ConnectToEnco(self):
+        encoderWthMQTT.ConnectToEnco(config.configuration())
+        if self.isConnected:
+            self.connectionSucces()
+        else:
+            self.connectionFail()
+
     def DisconnectEnco(self):
         try:
-            encoder0.close()
-            encoder0.client.loop_stop()
+            encoderWthMQTT.DisconnectEnco()
             self.disconnectedEnco()
         except:
             self.informationMessageBox("Encoder","Disconnection failed")
@@ -398,7 +454,7 @@ class Ui_Tester(QWidget):
         self.informationMessageBox("Encoder","Connection succeed")
 
     def disconnectedEnco(self):
-        self.informationMessageBox("Encoder","Connection failed")
+        self.informationMessageBox("Encoder","disconnection succeed")
 
     def connectionFail(self):
         self.warningMessageBox("Encoder","Connection failed")
