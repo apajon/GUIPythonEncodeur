@@ -34,7 +34,7 @@ import os
 # import phidget22Handler as handler
 
 # import configparser as ConfigParser  # Python 3
-import configFile
+from lib import configFile
 
 from api_phidget_n_MQTT.src.lib_api_phidget22 import phidget22Handler as handler
 from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
@@ -51,8 +51,6 @@ def ConnectToEnco(client, config, encoder0):
         Log.enable(LogLevel.PHIDGET_LOG_INFO, "phidgetlog.log")
         # Create your Phidget channels
         # Set addressing parameters to specify
-        encoder0.client = client
-        # encoder0.clientTopic = config.get('MQTT', 'topic')
         encoder0.clientTopic = config.get('encoder', 'topic_publish')
         encoder0.printLog = config.getboolean('encoder', 'printLog')
         encoder0.chooseDataInterval = config.getint('encoder', 'dataInterval')
@@ -89,6 +87,7 @@ def PlotData(config):
     # search for the last logger file based on the indentation
     #     filename="Logger_encoder_07.txt"
     filename = searchLoggerFile.searchLoggerFile(config)
+    print(filename)
     try:
         data = np.genfromtxt(filename, delimiter=",", names=True)
     except:
@@ -305,9 +304,7 @@ class Ui_Tester(QWidget):
         # import config file could depending on the name of the config file
         file = 'config.cfg'
         config = configFile.configFile(configFilename=file)
-        # config = ConfigParser.ConfigParser()
-        # print("opening configuration file : config.cfg")
-        # config.read(file)
+        self.config = configFile.configFile(configFilename=file)
 
         self.retranslateUi(Tester,config.configuration())
         QtCore.QMetaObject.connectSlotsByName(Tester)
@@ -324,24 +321,23 @@ class Ui_Tester(QWidget):
         guiReady = True
         clientLogger = MQTT_client.createClient("LoggerEncoder", config.configuration())
         clientEncoder = MQTT_client.createClient("Encoder", config.configuration())
+        encoder0.client = clientEncoder
         self.RecordingEnco.setRange(0, 100)
         self.textEditFile.setPlainText("Measures_")
         self.textEditDirectory.setPlainText("./save_measures/")
-        if not os.path.exists("save_measures"):
-            os.makedirs('save_measures')
+        # if not os.path.exists("save_measures"):
+        #     os.makedirs('save_measures')
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
         self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger, config.configuration(), self.updateStatus()))
         self.DisplayPlotButton.clicked.connect(lambda: PlotData(config.configuration()))
-        # self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config.configuration(), self.textEditFile.toPlainText()))
         self.FileConfirmButton.clicked.connect(lambda: config.NewFile(self.textEditFile.toPlainText()))
-        # self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config.configuration(), self.textEditDirectory.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: config.NewPath(self.textEditDirectory.toPlainText()))
         self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder, config.configuration(), encoder0))
-        self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(self, encoder0))
+        # self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(encoder0))
+        self.ToDisconnectButton.clicked.connect(self.DisconnectEnco)
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
-        # self.DataIntervalButton.clicked.connect(lambda: SetDataInterval(file, config.configuration(), self.spinBox.value()))
         self.DataIntervalButton.clicked.connect(lambda: config.SetDataInterval(self.spinBox.value()))
         self.DisplayData.clicked.connect(self.TestLCD)
 
@@ -369,51 +365,46 @@ class Ui_Tester(QWidget):
     # Create a messagebox when the registring starts or is done
     def registerIsOnMessage(self):
         if self.RegisterEnco.isChecked():
-            recordIsOn = QMessageBox()
-            recordIsOn.setIcon(QMessageBox.Information)
-            recordIsOn.setText("Recording has started")
-            recordIsOn.setWindowTitle("Information recording")
-            recordIsOn.setStandardButtons(QMessageBox.Ok)
-            recordIsOn.exec_()
+            self.informationMessageBox("Information recording","Recording has started")
         else:
-            recordIsOff = QMessageBox()
-            recordIsOff.setIcon(QMessageBox.Information)
-            recordIsOff.setText("Recording is done")
-            recordIsOff.setWindowTitle("Information recording")
-            recordIsOff.setStandardButtons(QMessageBox.Ok)
-            recordIsOff.exec_()
+            self.informationMessageBox("Information recording","Recording is finished")
 
-    def connectionSucces(self):
-        connectionIsSucces = QMessageBox()
-        connectionIsSucces.setIcon(QMessageBox.Information)
-        connectionIsSucces.setText("Connection succed")
-        connectionIsSucces.setWindowTitle("Encoder")
-        connectionIsSucces.setStandardButtons(QMessageBox.Ok)
-        connectionIsSucces.exec_()
+    def DisconnectEnco(self):
+        try:
+            encoder0.close()
+            encoder0.client.loop_stop()
+            self.disconnectedEnco()
+        except:
+            self.informationMessageBox("Encoder","Disconnection failed")
+            pass
 
-    def connectionFail(self):
-        connectionIsFailed = QMessageBox()
-        connectionIsFailed.setIcon(QMessageBox.Warning)
-        connectionIsFailed.setText("Connection failed")
-        connectionIsFailed.setWindowTitle("Encoder")
-        connectionIsFailed.setStandardButtons(QMessageBox.Ok)
-        connectionIsFailed.exec_()
-
-    def disconnectedEnco(self):
-        disconnected = QMessageBox()
-        disconnected.setIcon(QMessageBox.Information)
-        disconnected.setText("Connection failed")
-        disconnected.setWindowTitle("Encoder")
-        disconnected.setStandardButtons(QMessageBox.Ok)
-        disconnected.exec_()
-
-    def FailedFile(self):
+    def informationMessageBox(self,title,text):
         FailedFileMessage = QMessageBox()
         FailedFileMessage.setIcon(QMessageBox.Information)
-        FailedFileMessage.setWindowTitle("Error")
-        FailedFileMessage.setText("Unable to find file")
+        FailedFileMessage.setWindowTitle(title)
+        FailedFileMessage.setText(text)
         FailedFileMessage.setStandardButtons(QMessageBox.Ok)
         FailedFileMessage.exec_()
+
+    def warningMessageBox(self,title,text):
+        FailedFileMessage = QMessageBox()
+        FailedFileMessage.setIcon(QMessageBox.Warning)
+        FailedFileMessage.setWindowTitle(title)
+        FailedFileMessage.setText(text)
+        FailedFileMessage.setStandardButtons(QMessageBox.Ok)
+        FailedFileMessage.exec_()
+
+    def connectionSucces(self):
+        self.informationMessageBox("Encoder","Connection succeed")
+
+    def disconnectedEnco(self):
+        self.informationMessageBox("Encoder","Connection failed")
+
+    def connectionFail(self):
+        self.warningMessageBox("Encoder","Connection failed")
+
+    def FailedFile(self):
+        self.informationMessageBox("Error","Unable to find file")
 
     def TestLCD(self):
         dataFromFile = np.genfromtxt("Logger_encoder_gel_1cm_v1_00.txt", delimiter=",", names=True)
