@@ -4,26 +4,29 @@ This project is a graphical user interface (GUI) to automate the control of the 
 This GUI was developped with Python3 and Qt5.
 ____
 # Table of content
-- [1-Installation procedure](#1-Installation-procedure)
- - [1.1-Get the code](#11-Get-the-code)
- - [1.2-Libraries](#12-Libraries)
-   - [1.2.1-Needed Libraries](#121-Needed-Libraries)
-   - [1.2.2-Install Libraries](#122-Install-Libraries)
-  - [1.3-Software](#13-Software)
-    - [1.3.1-Needed Software](#131-Needed-Software)
-    - [1.3.2-Install Software](#132-Install-Software)
- - [1.4-Modify the Graphical User Interface](#14-Modify-the-Graphical-User-Interface)
-    - [1.4.1-Qt Design](#141-Qt-Design)
-    - [1.4.2-Translate .UI to .PY](#142-Modify-the-Graphical-User-Interface)
-  - [1.5-Modify the software](#15-Modify-the-Software)
-       - [1.5.1-Functions-with-or-without-arguments](#151-Functions-with-or-without-arguments)
-       - [1.5.2-Computer to Raspberry PI](#152-Computer-to-Raspberry-PI)
-  - [1.6-Troubleshooting](#16-Troubleshooting)
-      - [1.6.2-Empty submodule](#161-Empty-submodule)
-      - [1.6.2-libEGL warning](#162-libEGL-warning)
-      - [1.6.3-Consider adding this directory to PATH](#163-Consider-adding-this-directory-to-PATH)
-  - [1.7-Create Desktop App](#17-Create-Desktop-App)
-  - [1.8-Create an executable](#17-Create-an-executable)
+- [GUIPythonEncodeur](#guipythonencodeur)
+- [Table of content](#table-of-content)
+- [1-Installation procedure](#1-installation-procedure)
+  - [1.1-Get the code](#11-get-the-code)
+  - [1.2-Libraries](#12-libraries)
+    - [1.2.1-Needed Libraries](#121-needed-libraries)
+    - [1.2.2-Install Libraries](#122-install-libraries)
+      - [library phidget installation](#library-phidget-installation)
+  - [1.3-Software](#13-software)
+    - [1.3.1-Needed Software](#131-needed-software)
+    - [1.3.2-Install Software](#132-install-software)
+  - [1.4-Modify the Graphical User Interface](#14-modify-the-graphical-user-interface)
+    - [1.4.1-Qt Design](#141-qt-design)
+    - [1.4.2-Translate .UI to .PY](#142-translate-ui-to-py)
+  - [1.5-Modify the software](#15-modify-the-software)
+    - [1.5.1-Functions with or without arguments](#151-functions-with-or-without-arguments)
+    - [1.5.2-Computer to Raspberry PI](#152-computer-to-raspberry-pi)
+  - [1.6-Troubleshooting](#16-troubleshooting)
+    - [1.6.2-Empty submodule](#162-empty-submodule)
+    - [1.6.2-libEGL warning](#162-libegl-warning)
+    - [1.6.3-Consider adding this directory to PATH](#163-consider-adding-this-directory-to-path)
+  - [1.7-Create Desktop App](#17-create-desktop-app)
+  - [1.8-Create an executable](#18-create-an-executable)
 
 # 1-Installation procedure
 Before starting this procedure make sure the you have installed the **lib_global_python** and have read the readme file of this repo.
@@ -53,13 +56,16 @@ git checkout -b Rasp-Dev-Final origin/Rasp-Dev-Final
 ## 1.2-Libraries
 ### 1.2.1-Needed Libraries
 - library pyqt5
+```bash
+sudo apt-get install python3-pyqt5
+sudo apt-get install python3-pyqt5.qtsql
+```
 ### 1.2.2-Install Libraries
 #### library phidget installation
 Open a terminal write down these two command :
 ```bash
-sudo apt-get install python3-pyqt5
-sudo apt-get install python3-pyqt5.qtsql
-pip3 pysintaller
+pip3 install pysintaller
+pip3 install tornado
 ```
 ## 1.3-Software
 ### 1.3.1-Needed Software
@@ -180,7 +186,7 @@ Here is link to a tutorial. [Tutorial: Make a Python Program Executable in Linux
 ## 1.8-Create an executable
 Open a terminal in the **GUI** directory.
 ```bash
-pyinstaller -F Encoder_Control_GUI.py
+pyinstaller -F Encoder_Control_GUI.py --add-data config.cfg:./
 ```
 Now you show see a new directory named **dist**. \
 \

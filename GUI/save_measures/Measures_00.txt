@@ -1,0 +1,1 @@
+TimeRecording, PositionChange, TimeChange, IndexTriggered
