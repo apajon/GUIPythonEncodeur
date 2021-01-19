@@ -28,54 +28,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-import configparser as ConfigParser  # Python 3
-
 import os
 
 # sys.path.append("/home/pi/Documents/api_phidget_n_MQTT_2/src/lib_api_phidget22")
 # import phidget22Handler as handler
+
+# import configparser as ConfigParser  # Python 3
+import configFile
 
 from api_phidget_n_MQTT.src.lib_api_phidget22 import phidget22Handler as handler
 from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
 from api_phidget_n_MQTT.src.lib_global_python import createLoggerFile
 from api_phidget_n_MQTT.src.lib_global_python import loggerHandler
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
-
-
-# Functions with Arguments---------------------------------------------------
-# Functions to modify the config.cfg-----------------------------------------
-# This function modify the name of the file in the config.cfg
-def NewFile(file, config, fileText):
-    if not fileText:
-        fileText = "Measures_ "
-        config.set('filenameLogger', 'filename', fileText)
-        with open(file, 'w') as configfile:
-            config.write(configfile)
-    else:
-        config.set('filenameLogger', 'filename', fileText)
-        with open(file, 'w') as configfile:
-            config.write(configfile)
-
-
-# This function modify the directory of the file that you want to read
-def NewPath(file, config, pathText):
-    if not pathText:
-        pathText = "./save_measures/"
-        config.set('filenameLogger', 'folderpath', pathText)
-        with open(file, 'w') as configfile:
-            config.write(configfile)
-    else:
-        config.set('filenameLogger', 'folderpath', pathText)
-        with open(file, 'w') as configfile:
-            config.write(configfile)
-
-
-# This changes the data interval time the values is between 8ms to 1000ms
-def SetDataInterval(file, config, dataInterval):
-    config.set('encoder', 'datainterval', str(dataInterval))
-    with open(file, 'w') as configfile:
-        config.write(configfile)
-
 
 # -----------------------------------------------------------------------------
 def ConnectToEnco(client, config, encoder0):
@@ -339,11 +304,12 @@ class Ui_Tester(QWidget):
 
         # import config file could depending on the name of the config file
         file = 'config.cfg'
-        config = ConfigParser.ConfigParser()
-        print("opening configuration file : config.cfg")
-        config.read(file)
+        config = configFile.configFile(configFilename=file)
+        # config = ConfigParser.ConfigParser()
+        # print("opening configuration file : config.cfg")
+        # config.read(file)
 
-        self.retranslateUi(Tester,config)
+        self.retranslateUi(Tester,config.configuration())
         QtCore.QMetaObject.connectSlotsByName(Tester)
 
         # Ends of the GUI init------------------------------------------------------------------------------------------
@@ -356,8 +322,8 @@ class Ui_Tester(QWidget):
         encoder0 = Encoder()
         connectionStatus = False
         guiReady = True
-        clientLogger = MQTT_client.createClient("LoggerEncoder", config)
-        clientEncoder = MQTT_client.createClient("Encoder", config)
+        clientLogger = MQTT_client.createClient("LoggerEncoder", config.configuration())
+        clientEncoder = MQTT_client.createClient("Encoder", config.configuration())
         self.RecordingEnco.setRange(0, 100)
         self.textEditFile.setPlainText("Measures_")
         self.textEditDirectory.setPlainText("./save_measures/")
@@ -366,14 +332,17 @@ class Ui_Tester(QWidget):
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
-        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger, config, self.updateStatus()))
-        self.DisplayPlotButton.clicked.connect(lambda: PlotData(config))
-        self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config, self.textEditFile.toPlainText()))
-        self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config, self.textEditDirectory.toPlainText()))
-        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder, config, encoder0))
+        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger, config.configuration(), self.updateStatus()))
+        self.DisplayPlotButton.clicked.connect(lambda: PlotData(config.configuration()))
+        # self.FileConfirmButton.clicked.connect(lambda: NewFile(file, config.configuration(), self.textEditFile.toPlainText()))
+        self.FileConfirmButton.clicked.connect(lambda: config.NewFile(self.textEditFile.toPlainText()))
+        # self.DirectoryConfirmB.clicked.connect(lambda: NewPath(file, config.configuration(), self.textEditDirectory.toPlainText()))
+        self.DirectoryConfirmB.clicked.connect(lambda: config.NewPath(self.textEditDirectory.toPlainText()))
+        self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder, config.configuration(), encoder0))
         self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(self, encoder0))
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
-        self.DataIntervalButton.clicked.connect(lambda: SetDataInterval(file, config, self.spinBox.value()))
+        # self.DataIntervalButton.clicked.connect(lambda: SetDataInterval(file, config.configuration(), self.spinBox.value()))
+        self.DataIntervalButton.clicked.connect(lambda: config.SetDataInterval(self.spinBox.value()))
         self.DisplayData.clicked.connect(self.TestLCD)
 
     def centerOnScreen(self):
@@ -505,7 +474,11 @@ class Ui_Tester(QWidget):
         self.label_8.setText(_translate("Tester",hrefRepoAdress))
 
 if __name__ == "__main__":
-    import sys
+    # Make sure current path is this file path
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+
     app = QtWidgets.QApplication(sys.argv)
     Tester = QtWidgets.QMainWindow()
     ui = Ui_Tester()
