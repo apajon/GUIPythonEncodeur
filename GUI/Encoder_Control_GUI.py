@@ -32,7 +32,7 @@ from lib_global_python import loggerHandler
 from lib_global_python import MQTT_client
 import os
 
-sys.path.append("/home/pi/Documents/api_phidget_n_MQTT/src/lib_api_phidget22")
+sys.path.append("/home/pi/Documents/api_phidget_n_MQTT_2/src/lib_api_phidget22")
 import phidget22Handler as handler
 
 
@@ -328,8 +328,14 @@ class Ui_Tester(QWidget):
         self.statusbar = QtWidgets.QStatusBar(Tester)
         self.statusbar.setObjectName("statusbar")
         Tester.setStatusBar(self.statusbar)
-        
-        self.retranslateUi(Tester)
+
+        # import config file could depending on the name of the config file
+        file = 'config.cfg'
+        config = ConfigParser.ConfigParser()
+        print("opening configuration file : config.cfg")
+        config.read(file)
+
+        self.retranslateUi(Tester,config)
         QtCore.QMetaObject.connectSlotsByName(Tester)
 
         # Ends of the GUI init------------------------------------------------------------------------------------------
@@ -340,12 +346,7 @@ class Ui_Tester(QWidget):
         maxValueDataInt = 1000
         # Init of the encodeur
         encoder0 = Encoder()
-        # import config file could depending on the name of the config file
-        file = 'config.cfg'
-        config = ConfigParser.ConfigParser()
         connectionStatus = False
-        print("opening configuration file : config.cfg")
-        config.read(file)
         guiReady = True
         clientLogger = MQTT_client.createClient("LoggerEncoder", config)
         clientEncoder = MQTT_client.createClient("Encoder", config)
@@ -464,7 +465,7 @@ class Ui_Tester(QWidget):
     # Adds all the title to the object on the GUI
     # For renaming the objects you do it instead of going trough QT
 
-    def retranslateUi(self, Tester):
+    def retranslateUi(self, Tester, config):
         _translate = QtCore.QCoreApplication.translate
         Tester.setWindowTitle(_translate("Tester", "Interface de contrôle"))
         self.groupBox_2.setTitle(_translate("Tester", "Encoder"))
@@ -487,7 +488,13 @@ class Ui_Tester(QWidget):
         self.groupBox_5.setTitle(_translate("Tester", "Connectivité"))
         self.ToConnectButton.setText(_translate("Tester", "Lancer connexion"))
         self.ToDisconnectButton.setText(_translate("Tester", "Déconnexion"))
-        self.label_8.setText(_translate("Tester",'<a href="https://github.com/WilliamBonilla62/GUIPythonEncodeur/">https://github.com/WilliamBonilla62/GUIPythonEncodeur/</a>'))
+
+        try:
+            repoAdress=config.get('REPO','GitHub')
+        except:
+            repoAdress='https://github.com/WilliamBonilla62/GUIPythonEncodeur/'
+        hrefRepoAdress=f'<a href="{repoAdress}">{repoAdress}</a>'
+        self.label_8.setText(_translate("Tester",hrefRepoAdress))
 
 if __name__ == "__main__":
     import sys
