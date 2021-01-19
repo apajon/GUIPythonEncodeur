@@ -4,3 +4,6 @@
 [submodule "GUI/lib_global_python"]
 	path = GUI/lib_global_python
 	url = https://github.com/apajon/lib_global_python.git
+[submodule "GUI/api_phidget_n_MQTT"]
+	path = GUI/api_phidget_n_MQTT
+	url = https://apajon@github.com/apajon/api_phidget_n_MQTT.git
