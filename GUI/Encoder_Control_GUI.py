@@ -19,21 +19,27 @@ from Phidget22.Devices.Encoder import *
 from Phidget22.Devices.Log import *
 from Phidget22.LogLevel import *
 from Phidget22.PhidgetException import *
+
 import traceback
 import time
 import sys
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+
 import configparser as ConfigParser  # Python 3
-from lib_global_python import searchLoggerFile
-from lib_global_python import createLoggerFile
-from lib_global_python import loggerHandler
-from lib_global_python import MQTT_client
+
 import os
 
-sys.path.append("/home/pi/Documents/api_phidget_n_MQTT_2/src/lib_api_phidget22")
-import phidget22Handler as handler
+# sys.path.append("/home/pi/Documents/api_phidget_n_MQTT_2/src/lib_api_phidget22")
+# import phidget22Handler as handler
+
+from api_phidget_n_MQTT.src.lib_api_phidget22 import phidget22Handler as handler
+from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
+from api_phidget_n_MQTT.src.lib_global_python import createLoggerFile
+from api_phidget_n_MQTT.src.lib_global_python import loggerHandler
+from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
 
 
 # Functions with Arguments---------------------------------------------------
@@ -81,7 +87,8 @@ def ConnectToEnco(client, config, encoder0):
         # Create your Phidget channels
         # Set addressing parameters to specify
         encoder0.client = client
-        encoder0.clientTopic = config.get('MQTT', 'topic')
+        # encoder0.clientTopic = config.get('MQTT', 'topic')
+        encoder0.clientTopic = config.get('encoder', 'topic_publish')
         encoder0.printLog = config.getboolean('encoder', 'printLog')
         encoder0.chooseDataInterval = config.getint('encoder', 'dataInterval')
 
@@ -206,7 +213,8 @@ def Savedata(client, config, isChecked):
         client.on_message = loggerHandler.on_message
         client.loop_start()
 
-        topic_encoder = config.get('MQTT', 'topic')
+        # topic_encoder = config.get('MQTT', 'topic')
+        topic_encoder = config.get('encoder', 'topic_subscribe')
         client.subscribe(topic_encoder)
         ui.RecordingEnco.setValue(100)
     #         try:
