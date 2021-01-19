@@ -1,4 +1,4 @@
-.vscode/settings.json
+.vscode/
 dist/
 build/
 __pycache__/
