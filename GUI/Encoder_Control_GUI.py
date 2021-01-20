@@ -15,10 +15,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import *
-from Phidget22.Devices.Encoder import *
-from Phidget22.Devices.Log import *
-from Phidget22.LogLevel import *
-from Phidget22.PhidgetException import *
 
 import traceback
 import time
@@ -276,11 +272,12 @@ class Ui_Tester(QWidget):
         # Ends of the GUI init------------------------------------------------------------------------------------------
         self.label_8.setOpenExternalLinks(True)
         # Minimum value of the SpinBox which correspond to the minimum of interval time 8ms
-        minValueDataInt = 8
+        minValueDataInt = self.config.configuration().getint('encoder','minValueDataInt')
         # Maximum value of the SpinBox which correspond to the maximum of interval time 1000ms
-        maxValueDataInt = 1000
+        maxValueDataInt = self.config.configuration().getint('encoder','maxValueDataInt')
+
         # Init of the encodeur
-        encoderWthMQTT = handler.encoderWthMQTT(self.config.configuration())
+        self.encoderWthMQTT = handler.encoderWthMQTT(self.config.configuration())
         connectionStatus = False
         guiReady = True
         self.clientLogger = MQTT_client.createClient("LoggerEncoder", self.config.configuration())
@@ -330,7 +327,7 @@ class Ui_Tester(QWidget):
             self.informationMessageBox("Information recording","Recording is finished")
 
     def ConnectToEnco(self):
-        encoderWthMQTT.ConnectToEnco(self.config.configuration())
+        self.encoderWthMQTT.ConnectToEnco(self.config.configuration())
         if self.isConnected:
             self.connectionSucces()
         else:
@@ -338,7 +335,7 @@ class Ui_Tester(QWidget):
 
     def DisconnectEnco(self):
         try:
-            encoderWthMQTT.DisconnectEnco()
+            self.encoderWthMQTT.DisconnectEnco()
             self.disconnectedEnco()
         except:
             self.informationMessageBox("Encoder","Disconnection failed")
