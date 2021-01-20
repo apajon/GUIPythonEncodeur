@@ -1,12 +1,17 @@
 import time
 import json
 import numpy as np
-from lib_global_python import MQTT_client
+from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
 try:
     import ConfigParser #Python 2
 except ImportError:
     import configparser as ConfigParser #Python 3
 
+import os
+# Make sure current path is this file path
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 config = ConfigParser.ConfigParser()
 config.read('config.cfg')
