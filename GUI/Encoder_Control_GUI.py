@@ -30,9 +30,6 @@ import matplotlib.patches as patches
 
 import os
 
-# sys.path.append("/home/pi/Documents/api_phidget_n_MQTT_2/src/lib_api_phidget22")
-# import phidget22Handler as handler
-
 # import configparser as ConfigParser  # Python 3
 from lib import configFile
 
@@ -286,8 +283,7 @@ class Ui_Tester(QWidget):
         encoderWthMQTT = handler.encoderWthMQTT(self.config.configuration())
         connectionStatus = False
         guiReady = True
-        clientLogger = MQTT_client.createClient("LoggerEncoder", self.config.configuration())
-        clientEncoder = MQTT_client.createClient("Encoder", self.config.configuration())
+        self.clientLogger = MQTT_client.createClient("LoggerEncoder", self.config.configuration())
         self.RecordingEnco.setRange(0, 100)
         self.textEditFile.setPlainText("Measures_")
         self.textEditDirectory.setPlainText("./save_measures/")
@@ -295,17 +291,14 @@ class Ui_Tester(QWidget):
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
-        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger, self.config.configuration(), self.updateStatus()))
-        self.DisplayPlotButton.clicked.connect(lambda: PlotData(self.config.configuration()))
-        self.FileConfirmButton.clicked.connect(lambda: config.NewFile(self.textEditFile.toPlainText()))
-        self.DirectoryConfirmB.clicked.connect(lambda: config.NewPath(self.textEditDirectory.toPlainText()))
-        # self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder, config.configuration(), encoder0))
-        # self.ToConnectButton.clicked.connect(lambda: encoderWthMQTT.ConnectToEnco(config.configuration()))
+        self.RegisterEnco.stateChanged.connect(self.Savedata)
+        self.DisplayPlotButton.clicked.connect(self.PlotData)
+        self.FileConfirmButton.clicked.connect(self.NewFile)
+        self.DirectoryConfirmB.clicked.connect(self.NewPath)
         self.ToConnectButton.clicked.connect(self.ConnectToEnco)
-        # self.ToDisconnectButton.clicked.connect(lambda: DisconnectEnco(encoder0))
         self.ToDisconnectButton.clicked.connect(self.DisconnectEnco)
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
-        self.DataIntervalButton.clicked.connect(lambda: config.SetDataInterval(self.spinBox.value()))
+        self.DataIntervalButton.clicked.connect(self.config.SetDataInterval)
         self.DisplayData.clicked.connect(self.TestLCD)
 
     def centerOnScreen(self):
@@ -378,6 +371,21 @@ class Ui_Tester(QWidget):
 
     def FailedFile(self):
         self.informationMessageBox("Error","Unable to find file")
+
+    def NewFile(self):
+        self.config.NewFile(self.textEditFile.toPlainText())
+
+    def NewPath(self):
+        self.config.NewPath(self.textEditDirectory.toPlainText())
+
+    def SetDataInterval(self):
+        self.config.SetDataInterval(self.spinBox.value())
+
+    def PlotData(self):
+        PlotData(self.config.configuration())
+
+    def Savedata(self):
+        Savedata(self.clientLogger, self.config.configuration(), self.updateStatus())
 
     def TestLCD(self):
         dataFromFile = np.genfromtxt("Logger_encoder_gel_1cm_v1_00.txt", delimiter=",", names=True)
