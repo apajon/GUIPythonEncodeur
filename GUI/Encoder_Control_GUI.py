@@ -263,7 +263,6 @@ class Ui_Tester(QWidget):
 
         # import config file could depending on the name of the config file
         file = 'config.cfg'
-        config = configFile.configFile(configFilename=file)
         self.config = configFile.configFile(configFilename=file)
 
         self.retranslateUi(Tester,self.config.configuration())
