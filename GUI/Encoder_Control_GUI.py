@@ -43,86 +43,6 @@ from api_phidget_n_MQTT.src.lib_global_python import loggerHandler
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
 
 # -----------------------------------------------------------------------------
-class Enco:
-    def __init__(self):
-        self.encoder = Encoder()
-        self.isConnected = False
-
-    def ConnectToEnco(self, config):
-        ############
-        # connection to Phidget encoder and wait for measures
-        # publish the datas on config/MQTT/topic
-        try:
-            Log.enable(LogLevel.PHIDGET_LOG_INFO, "phidgetlog.log")
-            # Create your Phidget channels
-            # Set addressing parameters to specify
-            self.encoder.printLog = config.getboolean('encoder', 'printLog')
-            self.encoder.chooseDataInterval = config.getint('encoder', 'dataInterval')
-
-            # Assign any event handlers you need before calling open so that no events are missed.
-            self.encoder.setOnPositionChangeHandler(handler.onPositionChange)
-            self.encoder.setOnAttachHandler(handler.onAttach)
-            self.encoder.setOnDetachHandler(handler.onDetach)
-            # Open your Phidgets and wait for attachment
-            self.encoder.openWaitForAttachment(5000)
-            self.isConnected = True
-        except PhidgetException as ex:
-            self.isConnected = False
-            # We will catch Phidget Exceptions here, and print the error informaiton.
-            traceback.print_exc()
-            print("")
-            print("PhidgetException " + str(ex.code) + " (" + ex.description + "): " + ex.details)
-
-    def DisconnectEnco(self):
-        self.encoder.close()
-
-class EncoWthMQTT(Enco):
-    def __init__(self,config):
-        super().__init__()
-        clientEncoder = MQTT_client.createClient("Encoder", config)
-        self.encoder.clientEncoder = clientEncoder
-
-    def ConnectToEnco(self, config):
-        self.encoder.clientTopic = config.get('encoder', 'topic_publish')
-        super().ConnectToEnco(config)
-
-    def DisconnectEnco(self):
-        super().DisconnectEnco()
-        self.encoder.clientEncoder.loop_stop()
-
-def ConnectToEnco(client, config, encoder0):
-    ############
-    # connection to Phidget encoder and wait for measures
-    # publish the datas on config/MQTT/topic
-    try:
-        Log.enable(LogLevel.PHIDGET_LOG_INFO, "phidgetlog.log")
-        # Create your Phidget channels
-        # Set addressing parameters to specify
-        encoder0.clientTopic = config.get('encoder', 'topic_publish')
-        encoder0.printLog = config.getboolean('encoder', 'printLog')
-        encoder0.chooseDataInterval = config.getint('encoder', 'dataInterval')
-
-        # Assign any event handlers you need before calling open so that no events are missed.
-        encoder0.setOnPositionChangeHandler(handler.onPositionChange)
-        encoder0.setOnAttachHandler(handler.onAttach)
-        encoder0.setOnDetachHandler(handler.onDetach)
-        # Open your Phidgets and wait for attachment
-        encoder0.openWaitForAttachment(5000)
-        ui.connectionSucces()
-    except PhidgetException as ex:
-        ui.connectionFail()
-        # We will catch Phidget Exceptions here, and print the error informaiton.
-        traceback.print_exc()
-        print("")
-        print("PhidgetException " + str(ex.code) + " (" + ex.description + "): " + ex.details)
-
-
-def DisconnectEnco(encoder0):
-    encoder0.close()
-    encoder0.client.loop_stop()
-    ui.disconnectedEnco()
-
-
 def PlotData(config):
     ############
     # Encoder's resolution in mm per pulse
@@ -353,7 +273,7 @@ class Ui_Tester(QWidget):
         config = configFile.configFile(configFilename=file)
         self.config = configFile.configFile(configFilename=file)
 
-        self.retranslateUi(Tester,config.configuration())
+        self.retranslateUi(Tester,self.config.configuration())
         QtCore.QMetaObject.connectSlotsByName(Tester)
 
         # Ends of the GUI init------------------------------------------------------------------------------------------
@@ -363,23 +283,20 @@ class Ui_Tester(QWidget):
         # Maximum value of the SpinBox which correspond to the maximum of interval time 1000ms
         maxValueDataInt = 1000
         # Init of the encodeur
-        # encoder0 = Encoder()
-        encoderWthMQTT = EncoWthMQTT(config.configuration())
+        encoderWthMQTT = handler.encoderWthMQTT(self.config.configuration())
         connectionStatus = False
         guiReady = True
-        clientLogger = MQTT_client.createClient("LoggerEncoder", config.configuration())
-        clientEncoder = MQTT_client.createClient("Encoder", config.configuration())
-        # encoder0.client = clientEncoder
+        clientLogger = MQTT_client.createClient("LoggerEncoder", self.config.configuration())
+        clientEncoder = MQTT_client.createClient("Encoder", self.config.configuration())
         self.RecordingEnco.setRange(0, 100)
         self.textEditFile.setPlainText("Measures_")
         self.textEditDirectory.setPlainText("./save_measures/")
-        # if not os.path.exists("save_measures"):
-        #     os.makedirs('save_measures')
+
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
         self.CloseButton.clicked.connect(self.closeEvent)
-        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger, config.configuration(), self.updateStatus()))
-        self.DisplayPlotButton.clicked.connect(lambda: PlotData(config.configuration()))
+        self.RegisterEnco.stateChanged.connect(lambda: Savedata(clientLogger, self.config.configuration(), self.updateStatus()))
+        self.DisplayPlotButton.clicked.connect(lambda: PlotData(self.config.configuration()))
         self.FileConfirmButton.clicked.connect(lambda: config.NewFile(self.textEditFile.toPlainText()))
         self.DirectoryConfirmB.clicked.connect(lambda: config.NewPath(self.textEditDirectory.toPlainText()))
         # self.ToConnectButton.clicked.connect(lambda: ConnectToEnco(clientEncoder, config.configuration(), encoder0))
@@ -420,7 +337,7 @@ class Ui_Tester(QWidget):
             self.informationMessageBox("Information recording","Recording is finished")
 
     def ConnectToEnco(self):
-        encoderWthMQTT.ConnectToEnco(config.configuration())
+        encoderWthMQTT.ConnectToEnco(self.config.configuration())
         if self.isConnected:
             self.connectionSucces()
         else:
