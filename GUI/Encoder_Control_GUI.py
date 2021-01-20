@@ -23,6 +23,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import threading
 
 import os
 
@@ -34,6 +35,7 @@ from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
 from api_phidget_n_MQTT.src.lib_global_python import createLoggerFile
 from api_phidget_n_MQTT.src.lib_global_python import loggerHandler
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
+from api_phidget_n_MQTT.src.lib_global_python import repeatedFunctionThread
 
 # -----------------------------------------------------------------------------
 def PlotData(config):
@@ -124,10 +126,78 @@ def PlotData(config):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
 
+class saveData:
+    def __init__(self):
+        self.last_t1=0
+        pass
+
+    def saveDataMQTT(self, client, config, isChecked):
+        if isChecked:
+            fh = createLoggerFile.createLoggerFile(config)
+            client.fh = fh
+            client.printLog = config.getboolean('Logger', 'printLog')
+            client.firstLine = config.get('filenameLogger', 'firstLine')
+            client.saveLog = config.getboolean('Logger', 'saveLog')
+
+            client.on_message = loggerHandler.on_message
+            client.loop_start()
+
+            # topic_encoder = config.get('MQTT', 'topic')
+            topic_encoder = config.get('encoder', 'topic_subscribe')
+            client.subscribe(topic_encoder)
+            return 100
+        else:
+            client.loop_stop()
+            client.fh.close()
+            return 0    
+
+    def saveData(self,encoder, config, isChecked):
+        if isChecked:
+            self.fh = createLoggerFile.createLoggerFile(config)
+            self.printLog = config.getboolean('Logger', 'printLog')
+            self.firstLine = config.get('filenameLogger', 'firstLine')
+            self.saveLog = config.getboolean('Logger', 'saveLog')
+
+            client.on_message = loggerHandler.on_message
+            self.threadOnMessage = threading.Thread(target=self.on_message, args=(self, encoder,))
+            self.last_t1=encoder.t1
+            self.threadLoop=RepeatedTimer(0.001, self.loopCheckMessage, encoder)
+            self.threadLoop.start()
+            
+            # ui.RecordingEnco.setValue(100)
+            return 100
+        else:
+            self.threadLoop.stop()
+            self.fh.close()
+
+            # ui.RecordingEnco.setValue(0)
+            return 0   
+
+    def onMessage(self,encoder):
+        firstLine=self.firstLine.split(', ')
+        # Print the datas in the terminal
+        if self.printLog:
+            print(firstLine[0]+" : "+str(encoder.t1))
+            print(firstLine[1]+" : "+str(encoder.positionChange))
+            print(firstLine[2]+" : "+str(encoder.timeChange))
+            print(firstLine[3]+" : "+str(encoder.indexTriggered))
+            print("----------")
+
+        # Save the datas in a log file 'fh'
+        if client.saveLog:
+            self.fh.write(str(encoder.t1)+ ", ")
+            self.fh.write(str(encoder.positionChange)+ ", ")
+            self.fh.write(str(encoder.timeChange)+ ", ")
+            self.fh.write(str(encoder.indexTriggered)+ "\n")
+
+    def loopCheckMessage(self,encoder):
+        if encoder.t1 != self.last_t1:
+            self.threadOnMessage.start()
+
+
 
 def Savedata(client, config, isChecked):
     if isChecked:
-
         fh = createLoggerFile.createLoggerFile(config)
         client.fh = fh
         client.printLog = config.getboolean('Logger', 'printLog')
@@ -140,20 +210,11 @@ def Savedata(client, config, isChecked):
         # topic_encoder = config.get('MQTT', 'topic')
         topic_encoder = config.get('encoder', 'topic_subscribe')
         client.subscribe(topic_encoder)
-        ui.RecordingEnco.setValue(100)
-    #         try:
-    #             input("Press Enter to Stop\n")
-    #         except (Exception, KeyboardInterrupt):
-    #             print("Logger encoder stopped !")
-    #         finally:
-    #             #stop the loop
-    #             client.loop_stop()
-    #             #fh.close()
+        return(100)
     else:
         client.loop_stop()
         client.fh.close()
-        ui.RecordingEnco.setValue(0)
-    ui.registerIsOnMessage()
+        return(0)
 class Ui_Tester(QWidget):
     def setupUi(self, Tester):
         Tester.setObjectName("Tester")
@@ -277,9 +338,9 @@ class Ui_Tester(QWidget):
 
         # Init of the encodeur
         self.encoderWthMQTT = handler.encoderWthMQTT(self.config.configuration())
+        self.clientLogger = None
         connectionStatus = False
         guiReady = True
-        self.clientLogger = MQTT_client.createClient("LoggerEncoder", self.config.configuration())
         self.RecordingEnco.setRange(0, 100)
         self.textEditFile.setPlainText("Measures_")
         self.textEditDirectory.setPlainText("./save_measures/")
@@ -381,7 +442,19 @@ class Ui_Tester(QWidget):
         PlotData(self.config.configuration())
 
     def Savedata(self):
-        Savedata(self.clientLogger, self.config.configuration(), self.updateStatus())
+        try:
+            if not self.clientLogger:
+                self.clientLogger = MQTT_client.createClient("LoggerEncoder", self.config.configuration())
+        except:
+            self.clientLogger = None
+
+        self.saveData=saveData()
+        if self.clientLogger:
+            self.RecordingEnco.setValue(self.saveData.saveDataMQTT(self.clientLogger, self.config.configuration(), self.updateStatus()))
+            self.registerIsOnMessage()
+        # else:
+        #     self.saveData.Savedata(self.clientLogger, self.config.configuration(), self.updateStatus())
+
 
     def TestLCD(self):
         dataFromFile = np.genfromtxt("Logger_encoder_gel_1cm_v1_00.txt", delimiter=",", names=True)
