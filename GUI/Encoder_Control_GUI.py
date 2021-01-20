@@ -35,7 +35,7 @@ from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
 from api_phidget_n_MQTT.src.lib_global_python import createLoggerFile
 from api_phidget_n_MQTT.src.lib_global_python import loggerHandler
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
-from api_phidget_n_MQTT.src.lib_global_python import repeatedFunctionThread
+from api_phidget_n_MQTT.src.lib_global_python import repeatedTimer
 
 # -----------------------------------------------------------------------------
 def PlotData(config):
@@ -342,8 +342,8 @@ class Ui_Tester(QWidget):
         connectionStatus = False
         guiReady = True
         self.RecordingEnco.setRange(0, 100)
-        self.textEditFile.setPlainText("Measures_")
-        self.textEditDirectory.setPlainText("./save_measures/")
+        self.textEditFile.setPlainText(self.config.configuration().get('filenameLogger','filename_default'))
+        self.textEditDirectory.setPlainText(self.config.configuration().get('filenameLogger','folderpath_default'))
 
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
@@ -451,9 +451,9 @@ class Ui_Tester(QWidget):
         self.saveData=saveData()
         if self.clientLogger:
             self.RecordingEnco.setValue(self.saveData.saveDataMQTT(self.clientLogger, self.config.configuration(), self.updateStatus()))
-            self.registerIsOnMessage()
         # else:
-        #     self.saveData.Savedata(self.clientLogger, self.config.configuration(), self.updateStatus())
+        #     self.RecordingEnco.setValue(self.saveData.Savedata(self.encoderWthMQTT, self.config.configuration(), self.updateStatus()))
+        self.registerIsOnMessage()
 
 
     def TestLCD(self):
