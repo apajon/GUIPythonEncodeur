@@ -265,6 +265,10 @@ class Ui_Tester(QWidget):
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
         self.DataIntervalButton.clicked.connect(self.config.SetDataInterval)
         self.DisplayData.clicked.connect(self.TestLCD)
+        
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.displayMeasuresLCD)
+        
 
     def centerOnScreen(self):
         qtRectangle = self.frameGeometry()
@@ -296,14 +300,16 @@ class Ui_Tester(QWidget):
 
     def ConnectToEnco(self):
         self.encoderWthMQTT.ConnectToEnco(self.config.configuration())
-        if self.isConnected:
+        if self.encoderWthMQTT.isConnected:
             self.connectionSucces()
+            self.timer.start(0)
         else:
             self.connectionFail()
 
     def DisconnectEnco(self):
         try:
             self.encoderWthMQTT.DisconnectEnco()
+            self.timer.stop()
             self.disconnectedEnco()
         except:
             self.informationMessageBox("Encoder","Disconnection failed")
@@ -361,7 +367,25 @@ class Ui_Tester(QWidget):
             self.RecordingEnco.setValue(self.saveData.saveDataMQTT(self.clientLogger, self.config.configuration(), self.updateStatus()))
         # else:
         #     self.RecordingEnco.setValue(self.saveData.Savedata(self.encoderWthMQTT, self.config.configuration(), self.updateStatus()))
+
         self.registerIsOnMessage()
+
+    def displayMeasuresLCD(self):
+        if self.encoderWthMQTT.event_obj_onPositionChange.wait(0.1):
+
+            self.lcdTimeRecording.display(self.encoderWthMQTT.t1)
+            self.lcdTimeRecording.repaint()
+            self.lcdPositionChange.display(self.encoderWthMQTT.positionChange)
+            self.lcdPositionChange.repaint()
+            self.lcdTimeChange.display(self.encoderWthMQTT.timeChange)
+            self.lcdTimeChange.repaint()
+            self.lcdIndexTriggered.display(self.encoderWthMQTT.indexTriggered)
+            self.lcdIndexTriggered.repaint()
+
+            self.encoderWthMQTT.event_obj_onPositionChange.clear()
+            time.sleep(0.3)
+        else:
+            pass
 
 
     def TestLCD(self):
