@@ -130,102 +130,146 @@ class Ui_Tester(QWidget):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../../Downloads/Cirris.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Tester.setWindowIcon(icon)
+
         self.centralwidget = QtWidgets.QWidget(Tester)
         self.centralwidget.setObjectName("centralwidget")
+        Tester.setCentralWidget(self.centralwidget)
+
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QtCore.QRect(200, 0, 191, 80))
         self.groupBox_2.setObjectName("groupBox_2")
+
         self.RecordingEnco = QtWidgets.QSlider(self.groupBox_2)
         self.RecordingEnco.setGeometry(QtCore.QRect(10, 30, 160, 16))
         self.RecordingEnco.setOrientation(QtCore.Qt.Horizontal)
         self.RecordingEnco.setObjectName("RecordingEnco")
+
         self.RegisterEnco = QtWidgets.QCheckBox(self.groupBox_2)
         self.RegisterEnco.setGeometry(QtCore.QRect(10, 50, 141, 23))
         self.RegisterEnco.setObjectName("RegisterEnco")
+
         self.CloseButton = QtWidgets.QPushButton(self.centralwidget)
         self.CloseButton.setGeometry(QtCore.QRect(580, 470, 89, 25))
         self.CloseButton.setObjectName("CloseButton")
+
         self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QtCore.QRect(10, 0, 181, 441))
+        self.groupBox_3.setGeometry(QtCore.QRect(10, 0, 181, 481))
         self.groupBox_3.setObjectName("groupBox_3")
+
         self.DisplayPlotButton = QtWidgets.QPushButton(self.groupBox_3)
-        self.DisplayPlotButton.setGeometry(QtCore.QRect(10, 400, 161, 25))
+        self.DisplayPlotButton.setGeometry(QtCore.QRect(10, 450, 161, 25))
         self.DisplayPlotButton.setObjectName("DisplayPlotButton")
+
         self.lcdTimeRecording = QtWidgets.QLCDNumber(self.groupBox_3)
         self.lcdTimeRecording.setGeometry(QtCore.QRect(10, 40, 141, 51))
         self.lcdTimeRecording.setObjectName("lcdTimeRecording")
+
         self.label_3 = QtWidgets.QLabel(self.groupBox_3)
         self.label_3.setGeometry(QtCore.QRect(10, 90, 161, 17))
         self.label_3.setObjectName("label_3")
+
         self.lcdPositionChange = QtWidgets.QLCDNumber(self.groupBox_3)
         self.lcdPositionChange.setGeometry(QtCore.QRect(10, 110, 141, 51))
         self.lcdPositionChange.setObjectName("lcdPositionChange")
+
         self.label_4 = QtWidgets.QLabel(self.groupBox_3)
         self.label_4.setGeometry(QtCore.QRect(10, 160, 161, 17))
         self.label_4.setObjectName("label_4")
+
         self.lcdTimeChange = QtWidgets.QLCDNumber(self.groupBox_3)
         self.lcdTimeChange.setGeometry(QtCore.QRect(10, 180, 141, 51))
         self.lcdTimeChange.setObjectName("lcdTimeChange")
+
         self.lcdIndexTriggered = QtWidgets.QLCDNumber(self.groupBox_3)
         self.lcdIndexTriggered.setGeometry(QtCore.QRect(10, 250, 141, 51))
         self.lcdIndexTriggered.setObjectName("lcdIndexTriggered")
+
+        self.lcdDistance = QtWidgets.QLCDNumber(self.groupBox_3)
+        self.lcdDistance.setGeometry(QtCore.QRect(10, 320, 141, 51))
+        self.lcdDistance.setObjectName("lcdDistance")
+
         self.label_5 = QtWidgets.QLabel(self.groupBox_3)
         self.label_5.setGeometry(QtCore.QRect(10, 230, 161, 17))
         self.label_5.setObjectName("label_5")
+
         self.label_6 = QtWidgets.QLabel(self.groupBox_3)
         self.label_6.setGeometry(QtCore.QRect(10, 300, 161, 17))
         self.label_6.setObjectName("label_6")
+
+        self.label_9 = QtWidgets.QLabel(self.groupBox_3)
+        self.label_9.setGeometry(QtCore.QRect(10, 370, 161, 17))
+        self.label_9.setObjectName("label_9")
+
         self.DisplayData = QtWidgets.QPushButton(self.groupBox_3)
-        self.DisplayData.setGeometry(QtCore.QRect(10, 340, 161, 25))
+        self.DisplayData.setGeometry(QtCore.QRect(10, 420, 161, 25))
         self.DisplayData.setObjectName("DisplayData")
+
+        self.ToResetDistance = QtWidgets.QPushButton(self.groupBox_3)
+        self.ToResetDistance.setGeometry(QtCore.QRect(10, 390, 161, 25))
+        self.ToResetDistance.setObjectName("ToResetDistance")
+
         self.groupBox_4 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_4.setGeometry(QtCore.QRect(400, 0, 271, 401))
         self.groupBox_4.setObjectName("groupBox_4")
+
         self.textEditFile = QtWidgets.QTextEdit(self.groupBox_4)
         self.textEditFile.setGeometry(QtCore.QRect(10, 50, 251, 70))
         self.textEditFile.setObjectName("textEditFile")
+
         self.label = QtWidgets.QLabel(self.groupBox_4)
         self.label.setGeometry(QtCore.QRect(10, 30, 67, 17))
         self.label.setObjectName("label")
+
         self.FileConfirmButton = QtWidgets.QPushButton(self.groupBox_4)
         self.FileConfirmButton.setGeometry(QtCore.QRect(10, 130, 251, 25))
         self.FileConfirmButton.setObjectName("FileConfirmButton")
+
         self.textEditDirectory = QtWidgets.QTextEdit(self.groupBox_4)
         self.textEditDirectory.setGeometry(QtCore.QRect(10, 200, 251, 70))
         self.textEditDirectory.setObjectName("textEditDirectory")
+
         self.DirectoryConfirmB = QtWidgets.QPushButton(self.groupBox_4)
         self.DirectoryConfirmB.setGeometry(QtCore.QRect(10, 280, 251, 25))
         self.DirectoryConfirmB.setObjectName("DirectoryConfirmB")
+
         self.label_2 = QtWidgets.QLabel(self.groupBox_4)
         self.label_2.setGeometry(QtCore.QRect(10, 180, 67, 17))
         self.label_2.setObjectName("label_2")
+
         self.spinBox = QtWidgets.QSpinBox(self.groupBox_4)
         self.spinBox.setGeometry(QtCore.QRect(10, 330, 251, 26))
         self.spinBox.setObjectName("spinBox")
+
         self.label_7 = QtWidgets.QLabel(self.groupBox_4)
         self.label_7.setGeometry(QtCore.QRect(10, 310, 131, 17))
         self.label_7.setObjectName("label_7")
+
         self.DataIntervalButton = QtWidgets.QPushButton(self.groupBox_4)
         self.DataIntervalButton.setGeometry(QtCore.QRect(10, 360, 251, 25))
         self.DataIntervalButton.setObjectName("DataIntervalButton")
+
         self.groupBox_5 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_5.setGeometry(QtCore.QRect(200, 100, 191, 111))
         self.groupBox_5.setObjectName("groupBox_5")
+
         self.ToConnectButton = QtWidgets.QPushButton(self.groupBox_5)
         self.ToConnectButton.setGeometry(QtCore.QRect(10, 30, 171, 31))
         self.ToConnectButton.setObjectName("ToConnectButton")
+
         self.ToDisconnectButton = QtWidgets.QPushButton(self.groupBox_5)
         self.ToDisconnectButton.setGeometry(QtCore.QRect(10, 70, 171, 31))
         self.ToDisconnectButton.setObjectName("ToDisconnectButton")
+
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
         self.label_8.setOpenExternalLinks(True)
         self.label_8.setGeometry(QtCore.QRect(10, 480, 441, 17))
         self.label_8.setObjectName("label_8")
-        Tester.setCentralWidget(self.centralwidget)
+
         self.menubar = QtWidgets.QMenuBar(Tester)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 673, 22))
         self.menubar.setObjectName("menubar")
         Tester.setMenuBar(self.menubar)
+
         self.statusbar = QtWidgets.QStatusBar(Tester)
         self.statusbar.setObjectName("statusbar")
         Tester.setStatusBar(self.statusbar)
@@ -252,6 +296,7 @@ class Ui_Tester(QWidget):
         self.RecordingEnco.setRange(0, 100)
         self.textEditFile.setPlainText(self.config.configuration().get('filenameLogger','filename_default'))
         self.textEditDirectory.setPlainText(self.config.configuration().get('filenameLogger','folderpath_default'))
+        self.distance = 0
 
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
@@ -265,6 +310,7 @@ class Ui_Tester(QWidget):
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
         self.DataIntervalButton.clicked.connect(self.config.SetDataInterval)
         self.DisplayData.clicked.connect(self.TestLCD)
+        self.ToResetDistance.clicked.connect(self.ResetDistance)
         
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.displayMeasuresLCD)
@@ -303,6 +349,7 @@ class Ui_Tester(QWidget):
         if self.encoderWthMQTT.isConnected:
             self.connectionSucces()
             self.timer.start(0)
+            self.ResetDistance()
         else:
             self.connectionFail()
 
@@ -371,6 +418,9 @@ class Ui_Tester(QWidget):
         self.registerIsOnMessage()
 
     def displayMeasuresLCD(self):
+        self.lcdDistance.display(self.encoderWthMQTT.distance / 100) #distance in mm
+        self.lcdDistance.repaint()
+        
         if self.encoderWthMQTT.event_obj_onPositionChange.wait(0.1):
 
             self.lcdTimeRecording.display(self.encoderWthMQTT.t1)
@@ -406,6 +456,9 @@ class Ui_Tester(QWidget):
             self.lcdIndexTriggered.repaint()
             time.sleep(0.3)
 
+    def ResetDistance(self):
+        self.encoderWthMQTT.ResetDistance()
+
     def updateStatus(self):
         if self.RegisterEnco.isChecked():
             return True
@@ -423,10 +476,12 @@ class Ui_Tester(QWidget):
         self.CloseButton.setText(_translate("Tester", "Fermer"))
         self.groupBox_3.setTitle(_translate("Tester", "Afficher données"))
         self.DisplayPlotButton.setText(_translate("Tester", "Graphique de donnée"))
-        self.label_3.setText(_translate("Tester", "Time recording"))
+        self.label_3.setText(_translate("Tester", "Time recording [s]"))
         self.label_4.setText(_translate("Tester", "Position Change"))
-        self.label_5.setText(_translate("Tester", "Time change"))
+        self.label_5.setText(_translate("Tester", "Time change [ms]"))
         self.label_6.setText(_translate("Tester", "Index Triggered"))
+        self.label_9.setText(_translate("Tester", "Distance [dm]"))
+        self.ToResetDistance.setText(_translate("Tester", "Reset distance"))
         self.DisplayData.setText(_translate("Tester", "Afficher données"))
         self.groupBox_4.setTitle(_translate("Tester", "Fichier"))
         self.label.setText(_translate("Tester", "Fichier"))
