@@ -25,8 +25,7 @@ def PlotData(config):
     try:
         data = np.genfromtxt(filename, delimiter=",", names=True)
     except:
-        ui.FailedFile()
-        return
+        return False
     # convert the number of pulse position change into mm
     PositionChange_mm = data['PositionChange'] * Encoder_mm_per_Pulse
 

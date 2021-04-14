@@ -167,7 +167,8 @@ class Ui_Encoder(Ui_Tester):
         self.config.SetDataInterval(self.spinBox.value())
 
     def PlotData(self):
-        PlotData(self.config.configuration())
+        if not PlotData(self.config.configuration()):
+            self.FailedFile()
 
     def Savedata(self):
         try:
