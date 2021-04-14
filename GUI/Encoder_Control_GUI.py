@@ -21,9 +21,9 @@ import traceback
 import time
 import sys
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import matplotlib.patches as patches
 
 import os
 
@@ -33,7 +33,7 @@ from lib import saveData
 from lib.plotData import PlotData
 
 from api_phidget_n_MQTT.src.lib_api_phidget22 import phidget22Handler as handler
-from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
+# from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
 
 # -----------------------------------------------------------------------------

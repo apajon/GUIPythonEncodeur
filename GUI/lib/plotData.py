@@ -3,6 +3,13 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+from .api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
+
+
 def PlotData(config):
     ############
     # Encoder's resolution in mm per pulse
