@@ -12,9 +12,10 @@
 # Before starting to update the software please read the Readme file.
 # ********************************************************************
 # -------------------------------------------------------------------------
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import *
+from lib.Encoder_Control_GUI_ONLY import Ui_Tester
 
 import traceback
 import time
@@ -29,274 +30,132 @@ import os
 # import configparser as ConfigParser  # Python 3
 from lib import configFile
 from lib import saveData
+from lib.plotData import PlotData
 
 from api_phidget_n_MQTT.src.lib_api_phidget22 import phidget22Handler as handler
 from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
 
 # -----------------------------------------------------------------------------
-def PlotData(config):
-    ############
-    # Encoder's resolution in mm per pulse
-    #     Encoder_mm_per_Pulse = 0.02
-    Encoder_mm_per_Pulse = config.getfloat('encoder', 'resolution')
-    print("encoder resolution : " + str(Encoder_mm_per_Pulse))
+# def PlotData(config):
+#     ############
+#     # Encoder's resolution in mm per pulse
+#     #     Encoder_mm_per_Pulse = 0.02
+#     Encoder_mm_per_Pulse = config.getfloat('encoder', 'resolution')
+#     print("encoder resolution : " + str(Encoder_mm_per_Pulse))
 
-    ############
-    # search for the last logger file based on the indentation
-    #     filename="Logger_encoder_07.txt"
-    filename = searchLoggerFile.searchLoggerFile(config)
-    print(filename)
-    try:
-        data = np.genfromtxt(filename, delimiter=",", names=True)
-    except:
-        ui.FailedFile()
-        return
-    # convert the number of pulse position change into mm
-    PositionChange_mm = data['PositionChange'] * Encoder_mm_per_Pulse
+#     ############
+#     # search for the last logger file based on the indentation
+#     #     filename="Logger_encoder_07.txt"
+#     filename = searchLoggerFile.searchLoggerFile(config)
+#     print(filename)
+#     try:
+#         data = np.genfromtxt(filename, delimiter=",", names=True)
+#     except:
+#         ui.FailedFile()
+#         return
+#     # convert the number of pulse position change into mm
+#     PositionChange_mm = data['PositionChange'] * Encoder_mm_per_Pulse
 
-    # recorded time when datas are received in s
-    time = data['TimeRecording']
-    time -= time[0]  # the beginning time at 0
+#     # recorded time when datas are received in s
+#     time = data['TimeRecording']
+#     time -= time[0]  # the beginning time at 0
 
-    # vel is the velocity measured by the encoder
-    # as the positionChange_mm is in mm and the TimeChange is in ms
-    # the velocity is given in m/s
-    # If a 'detach' from the encoder, TimeChange=0 and vel will be Inf
-    vel = np.divide(PositionChange_mm, data['TimeChange'])
+#     # vel is the velocity measured by the encoder
+#     # as the positionChange_mm is in mm and the TimeChange is in ms
+#     # the velocity is given in m/s
+#     # If a 'detach' from the encoder, TimeChange=0 and vel will be Inf
+#     vel = np.divide(PositionChange_mm, data['TimeChange'])
 
-    ############
-    # initialize the plot
-    fig, ax1 = plt.subplots()
+#     ############
+#     # initialize the plot
+#     fig, ax1 = plt.subplots()
 
-    # plot the encoder velocity in time
-    color = 'tab:blue'
-    lns1 = ax1.plot(time, vel, label="Velocity", color=color)
-    ax1.set_xlabel("time[s]")
-    ax1.set_ylabel("Velocity[m/s]", color=color)
+#     # plot the encoder velocity in time
+#     color = 'tab:blue'
+#     lns1 = ax1.plot(time, vel, label="Velocity", color=color)
+#     ax1.set_xlabel("time[s]")
+#     ax1.set_ylabel("Velocity[m/s]", color=color)
 
-    color = 'tab:blue'
-    ax1.tick_params(axis='y', labelcolor=color)
-    ax1.grid()
+#     color = 'tab:blue'
+#     ax1.tick_params(axis='y', labelcolor=color)
+#     ax1.grid()
 
-    #     # Create a Rectangle patch
-    #     rect = patches.Rectangle((0,0),20,0.2,linewidth=1,edgecolor='k',facecolor='tab:grey')
-    #     # Add the patch to the Axes
-    #     ax1.add_patch(rect)
+#     #     # Create a Rectangle patch
+#     #     rect = patches.Rectangle((0,0),20,0.2,linewidth=1,edgecolor='k',facecolor='tab:grey')
+#     #     # Add the patch to the Axes
+#     #     ax1.add_patch(rect)
 
-    # Draw a grey rectangle patch for each detach of the encoder aka 'missing values' aka TimeChange=0
-    for k in np.argwhere(data['TimeChange'] == 0):
-        if k == 0:
-            rect = patches.Rectangle((time[k], 0), time[k + 1] - time[k], 2, linewidth=1, edgecolor='k',
-                                     facecolor='tab:grey')
-            ax1.add_patch(rect)
-            lns3 = rect
-        elif k != len(data['TimeChange']):
-            if k == np.argwhere(data['TimeChange'] == 0)[0]:
-                rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], 2, linewidth=1, edgecolor='k',
-                                         facecolor='tab:grey')
-                lns3 = ax1.add_patch(rect)
-            else:
-                rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], 2, linewidth=1, edgecolor='k',
-                                         facecolor='tab:grey')
-                ax1.add_patch(rect)
+#     # Draw a grey rectangle patch for each detach of the encoder aka 'missing values' aka TimeChange=0
+#     for k in np.argwhere(data['TimeChange'] == 0):
+#         if k == 0:
+#             rect = patches.Rectangle((time[k], 0), time[k + 1] - time[k], 2, linewidth=1, edgecolor='k',
+#                                      facecolor='tab:grey')
+#             ax1.add_patch(rect)
+#             lns3 = rect
+#         elif k != len(data['TimeChange']):
+#             if k == np.argwhere(data['TimeChange'] == 0)[0]:
+#                 rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], 2, linewidth=1, edgecolor='k',
+#                                          facecolor='tab:grey')
+#                 lns3 = ax1.add_patch(rect)
+#             else:
+#                 rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], 2, linewidth=1, edgecolor='k',
+#                                          facecolor='tab:grey')
+#                 ax1.add_patch(rect)
 
-    # plot the encoder distance measured in m
-    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+#     # plot the encoder distance measured in m
+#     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
-    color = 'tab:red'
-    ax2.set_ylabel('Position[m]', color=color)  # we already handled the x-label with ax1
-    lns2 = ax2.plot(time, np.cumsum(PositionChange_mm / 1000), color=color, label="Position")
-    ax2.tick_params(axis='y', labelcolor=color)
+#     color = 'tab:red'
+#     ax2.set_ylabel('Position[m]', color=color)  # we already handled the x-label with ax1
+#     lns2 = ax2.plot(time, np.cumsum(PositionChange_mm / 1000), color=color, label="Position")
+#     ax2.tick_params(axis='y', labelcolor=color)
 
-    plt.title("velocity and position measured by encoder \n in file : " + filename)
+#     plt.title("velocity and position measured by encoder \n in file : " + filename)
 
-    # Legend manage if there is no missing value meaning lns3 does not exist
-    try:
-        lns = [lns1[0], lns2[0], lns3]
-        labs = ('Velocity', 'Position', 'Missing velocity')
-    except:
-        lns = [lns1[0], lns2[0]]
-        labs = ('Velocity', 'Position')
-    ax1.legend(lns, labs)  # , loc=0)
+#     # Legend manage if there is no missing value meaning lns3 does not exist
+#     try:
+#         lns = [lns1[0], lns2[0], lns3]
+#         labs = ('Velocity', 'Position', 'Missing velocity')
+#     except:
+#         lns = [lns1[0], lns2[0]]
+#         labs = ('Velocity', 'Position')
+#     ax1.legend(lns, labs)  # , loc=0)
 
-    fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plt.show()
+#     fig.tight_layout()  # otherwise the right y-label is slightly clipped
+#     plt.show()
 
-class Ui_Tester(QWidget):
+class Ui_Encoder(Ui_Tester):
     def setupUi(self, Tester):
-        Tester.setObjectName("Tester")
-        Tester.resize(673, 541)
-        Tester.maximumSize()
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../../Downloads/Cirris.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        Tester.setWindowIcon(icon)
-
-        self.centralwidget = QtWidgets.QWidget(Tester)
-        self.centralwidget.setObjectName("centralwidget")
-        Tester.setCentralWidget(self.centralwidget)
-
-        self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QtCore.QRect(200, 0, 191, 80))
-        self.groupBox_2.setObjectName("groupBox_2")
-
-        self.RecordingEnco = QtWidgets.QSlider(self.groupBox_2)
-        self.RecordingEnco.setGeometry(QtCore.QRect(10, 30, 160, 16))
-        self.RecordingEnco.setOrientation(QtCore.Qt.Horizontal)
-        self.RecordingEnco.setObjectName("RecordingEnco")
-
-        self.RegisterEnco = QtWidgets.QCheckBox(self.groupBox_2)
-        self.RegisterEnco.setGeometry(QtCore.QRect(10, 50, 141, 23))
-        self.RegisterEnco.setObjectName("RegisterEnco")
-
-        self.CloseButton = QtWidgets.QPushButton(self.centralwidget)
-        self.CloseButton.setGeometry(QtCore.QRect(580, 470, 89, 25))
-        self.CloseButton.setObjectName("CloseButton")
-
-        self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QtCore.QRect(10, 0, 181, 481))
-        self.groupBox_3.setObjectName("groupBox_3")
-
-        self.DisplayPlotButton = QtWidgets.QPushButton(self.groupBox_3)
-        self.DisplayPlotButton.setGeometry(QtCore.QRect(10, 450, 161, 25))
-        self.DisplayPlotButton.setObjectName("DisplayPlotButton")
-
-        self.lcdTimeRecording = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdTimeRecording.setGeometry(QtCore.QRect(10, 40, 141, 51))
-        self.lcdTimeRecording.setObjectName("lcdTimeRecording")
-
-        self.label_3 = QtWidgets.QLabel(self.groupBox_3)
-        self.label_3.setGeometry(QtCore.QRect(10, 90, 161, 17))
-        self.label_3.setObjectName("label_3")
-
-        self.lcdPositionChange = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdPositionChange.setGeometry(QtCore.QRect(10, 110, 141, 51))
-        self.lcdPositionChange.setObjectName("lcdPositionChange")
-
-        self.label_4 = QtWidgets.QLabel(self.groupBox_3)
-        self.label_4.setGeometry(QtCore.QRect(10, 160, 161, 17))
-        self.label_4.setObjectName("label_4")
-
-        self.lcdTimeChange = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdTimeChange.setGeometry(QtCore.QRect(10, 180, 141, 51))
-        self.lcdTimeChange.setObjectName("lcdTimeChange")
-
-        self.lcdIndexTriggered = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdIndexTriggered.setGeometry(QtCore.QRect(10, 250, 141, 51))
-        self.lcdIndexTriggered.setObjectName("lcdIndexTriggered")
-
-        self.lcdDistance = QtWidgets.QLCDNumber(self.groupBox_3)
-        self.lcdDistance.setGeometry(QtCore.QRect(10, 320, 141, 51))
-        self.lcdDistance.setObjectName("lcdDistance")
-
-        self.label_5 = QtWidgets.QLabel(self.groupBox_3)
-        self.label_5.setGeometry(QtCore.QRect(10, 230, 161, 17))
-        self.label_5.setObjectName("label_5")
-
-        self.label_6 = QtWidgets.QLabel(self.groupBox_3)
-        self.label_6.setGeometry(QtCore.QRect(10, 300, 161, 17))
-        self.label_6.setObjectName("label_6")
-
-        self.label_9 = QtWidgets.QLabel(self.groupBox_3)
-        self.label_9.setGeometry(QtCore.QRect(10, 370, 161, 17))
-        self.label_9.setObjectName("label_9")
-
-        self.DisplayData = QtWidgets.QPushButton(self.groupBox_3)
-        self.DisplayData.setGeometry(QtCore.QRect(10, 420, 161, 25))
-        self.DisplayData.setObjectName("DisplayData")
-
-        self.ToResetDistance = QtWidgets.QPushButton(self.groupBox_3)
-        self.ToResetDistance.setGeometry(QtCore.QRect(10, 390, 161, 25))
-        self.ToResetDistance.setObjectName("ToResetDistance")
-
-        self.groupBox_4 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_4.setGeometry(QtCore.QRect(400, 0, 271, 401))
-        self.groupBox_4.setObjectName("groupBox_4")
-
-        self.textEditFile = QtWidgets.QTextEdit(self.groupBox_4)
-        self.textEditFile.setGeometry(QtCore.QRect(10, 50, 251, 70))
-        self.textEditFile.setObjectName("textEditFile")
-
-        self.label = QtWidgets.QLabel(self.groupBox_4)
-        self.label.setGeometry(QtCore.QRect(10, 30, 67, 17))
-        self.label.setObjectName("label")
-
-        self.FileConfirmButton = QtWidgets.QPushButton(self.groupBox_4)
-        self.FileConfirmButton.setGeometry(QtCore.QRect(10, 130, 251, 25))
-        self.FileConfirmButton.setObjectName("FileConfirmButton")
-
-        self.textEditDirectory = QtWidgets.QTextEdit(self.groupBox_4)
-        self.textEditDirectory.setGeometry(QtCore.QRect(10, 200, 251, 70))
-        self.textEditDirectory.setObjectName("textEditDirectory")
-
-        self.DirectoryConfirmB = QtWidgets.QPushButton(self.groupBox_4)
-        self.DirectoryConfirmB.setGeometry(QtCore.QRect(10, 280, 251, 25))
-        self.DirectoryConfirmB.setObjectName("DirectoryConfirmB")
-
-        self.label_2 = QtWidgets.QLabel(self.groupBox_4)
-        self.label_2.setGeometry(QtCore.QRect(10, 180, 67, 17))
-        self.label_2.setObjectName("label_2")
-
-        self.spinBox = QtWidgets.QSpinBox(self.groupBox_4)
-        self.spinBox.setGeometry(QtCore.QRect(10, 330, 251, 26))
-        self.spinBox.setObjectName("spinBox")
-
-        self.label_7 = QtWidgets.QLabel(self.groupBox_4)
-        self.label_7.setGeometry(QtCore.QRect(10, 310, 131, 17))
-        self.label_7.setObjectName("label_7")
-
-        self.DataIntervalButton = QtWidgets.QPushButton(self.groupBox_4)
-        self.DataIntervalButton.setGeometry(QtCore.QRect(10, 360, 251, 25))
-        self.DataIntervalButton.setObjectName("DataIntervalButton")
-
-        self.groupBox_5 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_5.setGeometry(QtCore.QRect(200, 100, 191, 111))
-        self.groupBox_5.setObjectName("groupBox_5")
-
-        self.ToConnectButton = QtWidgets.QPushButton(self.groupBox_5)
-        self.ToConnectButton.setGeometry(QtCore.QRect(10, 30, 171, 31))
-        self.ToConnectButton.setObjectName("ToConnectButton")
-
-        self.ToDisconnectButton = QtWidgets.QPushButton(self.groupBox_5)
-        self.ToDisconnectButton.setGeometry(QtCore.QRect(10, 70, 171, 31))
-        self.ToDisconnectButton.setObjectName("ToDisconnectButton")
-
-        self.label_8 = QtWidgets.QLabel(self.centralwidget)
-        self.label_8.setOpenExternalLinks(True)
-        self.label_8.setGeometry(QtCore.QRect(10, 480, 441, 17))
-        self.label_8.setObjectName("label_8")
-
-        self.menubar = QtWidgets.QMenuBar(Tester)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 673, 22))
-        self.menubar.setObjectName("menubar")
-        Tester.setMenuBar(self.menubar)
-
-        self.statusbar = QtWidgets.QStatusBar(Tester)
-        self.statusbar.setObjectName("statusbar")
-        Tester.setStatusBar(self.statusbar)
+        super().setupUi(Tester)
 
         # import config file could depending on the name of the config file
         file = 'config.cfg'
         self.config = configFile.configFile(configFilename=file)
 
-        self.retranslateUi(Tester,self.config.configuration())
+        self.retranslateUiNew(Tester,self.config.configuration())
         QtCore.QMetaObject.connectSlotsByName(Tester)
+        # Ends of the GUI Widget init------------------------------------------------------------------------------------------
 
-        # Ends of the GUI init------------------------------------------------------------------------------------------
-        self.label_8.setOpenExternalLinks(True)
+        # Init GUI default values
+        self.urlRepo.setOpenExternalLinks(True)
         # Minimum value of the SpinBox which correspond to the minimum of interval time 8ms
         minValueDataInt = self.config.configuration().getint('encoder','minValueDataInt')
         # Maximum value of the SpinBox which correspond to the maximum of interval time 1000ms
         maxValueDataInt = self.config.configuration().getint('encoder','maxValueDataInt')
+        # Default text of filename
+        self.textEditFile.setPlainText(self.config.configuration().get('filenameLogger','filename_default'))
+        # Default text of Directory
+        self.textEditDirectory.setPlainText(self.config.configuration().get('filenameLogger','folderpath_default'))
+        # Recording slider range
+        self.RecordingEnco.setRange(0, 100)
+
 
         # Init of the encodeur
         self.encoderWthMQTT = handler.encoderWthMQTT(self.config.configuration())
         self.clientLogger = None
         connectionStatus = False
         guiReady = True
-        self.RecordingEnco.setRange(0, 100)
-        self.textEditFile.setPlainText(self.config.configuration().get('filenameLogger','filename_default'))
-        self.textEditDirectory.setPlainText(self.config.configuration().get('filenameLogger','folderpath_default'))
         self.distance = 0
         self.saveData=saveData.saveData()
         self.isRecordData = False
@@ -311,17 +170,12 @@ class Ui_Tester(QWidget):
         self.DirectoryConfirmB.clicked.connect(self.NewPath)
         self.ToConnectButton.clicked.connect(self.ConnectToEnco)
         self.ToDisconnectButton.clicked.connect(self.DisconnectEnco)
-        self.spinBox.setRange(minValueDataInt, maxValueDataInt)
+        self.DataIntervalSpinBox.setRange(minValueDataInt, maxValueDataInt)
         self.DataIntervalButton.clicked.connect(self.SetDataInterval)
-        self.DisplayData.clicked.connect(self.TestLCD)
         self.ToResetDistance.clicked.connect(self.ResetDistance)
         
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.displayMeasuresLCD)
-
-        # self.timer2 = QtCore.QTimer()
-        # self.timer2.timeout.connect(self.recordData)
-        
 
     def centerOnScreen(self):
         qtRectangle = self.frameGeometry()
@@ -333,7 +187,7 @@ class Ui_Tester(QWidget):
     # Functions without arguments--------------------------------------------------------------------------------------
     # This functions creates a message box to make the user wants to quit the GUI.
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Quit?', 'Are you sure you want to quit?', QMessageBox.Yes | QMessageBox.No,
+        reply = QMessageBox.question(self.CloseButton, 'Quit?', 'Are you sure you want to quit?', QMessageBox.Yes | QMessageBox.No,
                                      QMessageBox.No)
         if reply == QMessageBox.Yes:
             if not type(event) == bool:
@@ -455,8 +309,6 @@ class Ui_Tester(QWidget):
                 self.lcdPositionChange.repaint()
                 self.lcdTimeChange.display(self.encoderWthMQTT.timeChange)
                 self.lcdTimeChange.repaint()
-                self.lcdIndexTriggered.display(self.encoderWthMQTT.indexTriggered)
-                self.lcdIndexTriggered.repaint()
 
                 if self.RecordingEnco.value() == 0:
                     self.encoderWthMQTT.event_obj_onPositionChange.clear()
@@ -465,25 +317,6 @@ class Ui_Tester(QWidget):
                 # time.sleep(0.3)
         else:
             pass
-
-
-    def TestLCD(self):
-        dataFromFile = np.genfromtxt("Logger_encoder_gel_1cm_v1_00.txt", delimiter=",", names=True)
-        t1 = dataFromFile["TimeRecording"]
-        positionChange = dataFromFile["PositionChange"]
-        timeChange = dataFromFile["TimeChange"]
-        indexTriggered = dataFromFile["IndexTriggered"]
-
-        for i in range(0, len(dataFromFile["TimeRecording"]), 1):
-            self.lcdTimeRecording.display(t1[i])
-            self.lcdTimeRecording.repaint()
-            self.lcdPositionChange.display(positionChange[i])
-            self.lcdPositionChange.repaint()
-            self.lcdTimeChange.display(timeChange[i])
-            self.lcdTimeChange.repaint()
-            self.lcdIndexTriggered.display(indexTriggered[i])
-            self.lcdIndexTriggered.repaint()
-            time.sleep(0.3)
 
     def ResetDistance(self):
         self.encoderWthMQTT.ResetDistance()
@@ -497,38 +330,35 @@ class Ui_Tester(QWidget):
     # Adds all the title to the object on the GUI
     # For renaming the objects you do it instead of going trough QT
 
-    def retranslateUi(self, Tester, config):
+    def retranslateUiNew(self, Tester, config):
         _translate = QtCore.QCoreApplication.translate
-        Tester.setWindowTitle(_translate("Tester", "Interface de contrôle"))
-        self.groupBox_2.setTitle(_translate("Tester", "Encoder"))
-        self.RegisterEnco.setText(_translate("Tester", "Enregistrement"))
-        self.CloseButton.setText(_translate("Tester", "Fermer"))
-        self.groupBox_3.setTitle(_translate("Tester", "Afficher données"))
-        self.DisplayPlotButton.setText(_translate("Tester", "Graphique de donnée"))
-        self.label_3.setText(_translate("Tester", "Time recording [s]"))
-        self.label_4.setText(_translate("Tester", "Position Change"))
-        self.label_5.setText(_translate("Tester", "Time change [ms]"))
-        self.label_6.setText(_translate("Tester", "Index Triggered"))
-        self.label_9.setText(_translate("Tester", "Distance [dm]"))
-        self.ToResetDistance.setText(_translate("Tester", "Reset distance"))
-        self.DisplayData.setText(_translate("Tester", "Afficher données"))
-        self.groupBox_4.setTitle(_translate("Tester", "Fichier"))
-        self.label.setText(_translate("Tester", "Fichier"))
-        self.FileConfirmButton.setText(_translate("Tester", "Confirmer"))
-        self.DirectoryConfirmB.setText(_translate("Tester", "Confirmer"))
-        self.label_2.setText(_translate("Tester", "Dossier"))
-        self.label_7.setText(_translate("Tester", "Data Interval"))
-        self.DataIntervalButton.setText(_translate("Tester", "Confirmer"))
-        self.groupBox_5.setTitle(_translate("Tester", "Connectivité"))
-        self.ToConnectButton.setText(_translate("Tester", "Lancer connexion"))
-        self.ToDisconnectButton.setText(_translate("Tester", "Déconnexion"))
+        # Tester.setWindowTitle(_translate("Tester", "Interface de contrôle"))
+        # self.groupBox_2.setTitle(_translate("Tester", "Encoder"))
+        # self.RegisterEnco.setText(_translate("Tester", "Enregistrement"))
+        # self.groupBox_5.setTitle(_translate("Tester", "Connectivité"))
+        # self.ToConnectButton.setText(_translate("Tester", "Connexion"))
+        # self.ToDisconnectButton.setText(_translate("Tester", "Déconnexion"))
+        # self.DisplayPlotButton.setText(_translate("Tester", "Graphique"))
+        # self.DisplayData_2.setText(_translate("Tester", "Reset distance"))
+        # self.textBoxDirectory.setText(_translate("Tester", "Dossier"))
+        # self.DirectoryConfirmB.setText(_translate("Tester", "Confirmer"))
+        # self.textBoxFile.setText(_translate("Tester", "Fichier"))
+        # self.FileConfirmButton.setText(_translate("Tester", "Confirmer"))
+        # self.textBoxDataInterval.setText(_translate("Tester", "Data Interval"))
+        # self.DataIntervalButton.setText(_translate("Tester", "Confirmer"))
+        # self.CloseButton.setText(_translate("Tester", "Fermer"))
+        # self.groupBox_3.setTitle(_translate("Tester", "Afficher données"))
+        # self.lcdTextTimeRecording.setText(_translate("Tester", "Time recording [s]"))
+        # self.lcdTextPositionChange.setText(_translate("Tester", "Position Change"))
+        # self.lcdTextTimeChange.setText(_translate("Tester", "Time change [ms]"))
+        # self.lcdTextDistance.setText(_translate("Tester", "Distance [dm]"))
 
         try:
             repoAdress=config.get('REPO','GitHub')
         except:
             repoAdress='https://github.com/WilliamBonilla62/GUIPythonEncodeur/'
         hrefRepoAdress=f'<a href="{repoAdress}">{repoAdress}</a>'
-        self.label_8.setText(_translate("Tester",hrefRepoAdress))
+        self.urlRepo.setText(_translate("Tester",hrefRepoAdress))
 
 if __name__ == "__main__":
     # Make sure current path is this file path
@@ -539,7 +369,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     Tester = QtWidgets.QMainWindow()
    
-    ui = Ui_Tester()
+    ui = Ui_Encoder()
     ui.setupUi(Tester)
     Tester.show()
     sys.exit(app.exec_())
