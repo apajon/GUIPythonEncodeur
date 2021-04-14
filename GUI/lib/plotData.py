@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-from .api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
+from api_phidget_n_MQTT.src.lib_global_python import searchLoggerFile
 
 
 def PlotData(config):
@@ -96,4 +96,6 @@ def PlotData(config):
     ax1.legend(lns, labs)  # , loc=0)
 
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
     plt.show()
