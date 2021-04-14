@@ -127,6 +127,7 @@ class Ui_Tester(QWidget):
     def setupUi(self, Tester):
         Tester.setObjectName("Tester")
         Tester.resize(673, 541)
+        Tester.maximumSize()
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../../Downloads/Cirris.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Tester.setWindowIcon(icon)
@@ -297,6 +298,9 @@ class Ui_Tester(QWidget):
         self.textEditFile.setPlainText(self.config.configuration().get('filenameLogger','filename_default'))
         self.textEditDirectory.setPlainText(self.config.configuration().get('filenameLogger','folderpath_default'))
         self.distance = 0
+        self.saveData=saveData.saveData()
+        self.isRecordData = False
+        self.lastDisplay = time.time()
 
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
@@ -308,12 +312,15 @@ class Ui_Tester(QWidget):
         self.ToConnectButton.clicked.connect(self.ConnectToEnco)
         self.ToDisconnectButton.clicked.connect(self.DisconnectEnco)
         self.spinBox.setRange(minValueDataInt, maxValueDataInt)
-        self.DataIntervalButton.clicked.connect(self.config.SetDataInterval)
+        self.DataIntervalButton.clicked.connect(self.SetDataInterval)
         self.DisplayData.clicked.connect(self.TestLCD)
         self.ToResetDistance.clicked.connect(self.ResetDistance)
         
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.displayMeasuresLCD)
+
+        # self.timer2 = QtCore.QTimer()
+        # self.timer2.timeout.connect(self.recordData)
         
 
     def centerOnScreen(self):
@@ -349,7 +356,7 @@ class Ui_Tester(QWidget):
         if self.encoderWthMQTT.isConnected:
             self.connectionSucces()
             self.timer.start(0)
-            self.ResetDistance()
+            self.lastDisplay = time.time()
         else:
             self.connectionFail()
 
@@ -404,36 +411,58 @@ class Ui_Tester(QWidget):
 
     def Savedata(self):
         try:
-            if not self.clientLogger:
-                self.clientLogger = MQTT_client.createClient("LoggerEncoder", self.config.configuration())
+            if not self.clientLogger and self.RecordingEnco.value() == 0:
+                self.clientLogger = MQTT_client.createClient(None, self.config.configuration())
         except:
             self.clientLogger = None
 
-        self.saveData=saveData.saveData()
         if self.clientLogger:
             self.RecordingEnco.setValue(self.saveData.saveDataMQTT(self.clientLogger, self.config.configuration(), self.updateStatus()))
-        # else:
+        else:
+            self.RecordingEnco.setValue(self.saveData.saveDataSimple(self.config.configuration(),self.updateStatus()))
+            if self.RecordingEnco.value() ==0:
+                # self.timer2.stop()
+                self.isRecordData = False
+                pass
+            else:
+                print("***record started***")
+                self.isRecordData = True
+                # self.timer2.start(0)
+                pass
         #     self.RecordingEnco.setValue(self.saveData.Savedata(self.encoderWthMQTT, self.config.configuration(), self.updateStatus()))
 
         self.registerIsOnMessage()
+
+    def recordData(self):
+        self.saveData.onMessage(self.encoderWthMQTT)
+        self.encoderWthMQTT.event_obj_onPositionChange.clear()
 
     def displayMeasuresLCD(self):
         self.lcdDistance.display(self.encoderWthMQTT.distance / 100) #distance in mm
         self.lcdDistance.repaint()
         
         if self.encoderWthMQTT.event_obj_onPositionChange.wait(0.1):
+            if self.isRecordData and self.encoderWthMQTT.isConnected:
+                self.recordData()
+                pass
+            else:
+                pass
 
-            self.lcdTimeRecording.display(self.encoderWthMQTT.t1)
-            self.lcdTimeRecording.repaint()
-            self.lcdPositionChange.display(self.encoderWthMQTT.positionChange)
-            self.lcdPositionChange.repaint()
-            self.lcdTimeChange.display(self.encoderWthMQTT.timeChange)
-            self.lcdTimeChange.repaint()
-            self.lcdIndexTriggered.display(self.encoderWthMQTT.indexTriggered)
-            self.lcdIndexTriggered.repaint()
+            if time.time() - self.lastDisplay >= 0.3:
+                self.lcdTimeRecording.display(self.encoderWthMQTT.t1)
+                self.lcdTimeRecording.repaint()
+                self.lcdPositionChange.display(self.encoderWthMQTT.positionChange)
+                self.lcdPositionChange.repaint()
+                self.lcdTimeChange.display(self.encoderWthMQTT.timeChange)
+                self.lcdTimeChange.repaint()
+                self.lcdIndexTriggered.display(self.encoderWthMQTT.indexTriggered)
+                self.lcdIndexTriggered.repaint()
 
-            self.encoderWthMQTT.event_obj_onPositionChange.clear()
-            time.sleep(0.3)
+                if self.RecordingEnco.value() == 0:
+                    self.encoderWthMQTT.event_obj_onPositionChange.clear()
+
+                self.lastDisplay = time.time()
+                # time.sleep(0.3)
         else:
             pass
 
@@ -509,6 +538,7 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     Tester = QtWidgets.QMainWindow()
+   
     ui = Ui_Tester()
     ui.setupUi(Tester)
     Tester.show()

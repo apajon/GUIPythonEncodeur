@@ -9,6 +9,9 @@ class saveData:
         self.last_t1=0
         pass
 
+    def initFile(self,config):
+        self.fh = createLoggerFile.createLoggerFile(config)
+
     def saveDataMQTT(self, client, config, isChecked):
         if isChecked:
             fh = createLoggerFile.createLoggerFile(config)
@@ -29,7 +32,7 @@ class saveData:
             client.fh.close()
             return 0    
 
-    def saveData(self,encoder, config, isChecked):
+    def saveData(self, encoder, config, isChecked):
         if isChecked:
             self.fh = createLoggerFile.createLoggerFile(config)
             self.printLog = config.getboolean('Logger', 'printLog')
@@ -49,6 +52,18 @@ class saveData:
 
             # ui.RecordingEnco.setValue(0)
             return 0   
+
+    def saveDataSimple(self,config, isChecked):
+        if isChecked:
+            self.fh = createLoggerFile.createLoggerFile(config)
+            self.printLog = config.getboolean('Logger', 'printLog')
+            self.firstLine = config.get('filenameLogger', 'firstLine')
+            self.saveLog = config.getboolean('Logger', 'saveLog')
+
+            return 100
+        else:
+            self.fh.close()
+            return 0
 
     def onMessage(self,encoder):
         firstLine=self.firstLine.split(', ')
