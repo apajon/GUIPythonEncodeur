@@ -3,8 +3,7 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-# import numpy as np
-import np.genfromtxt, np.divide, np.cumsum, np.argwhere
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
