@@ -14,10 +14,8 @@
 # -------------------------------------------------------------------------
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import *
 from lib.Encoder_Control_GUI_ONLY import Ui_Tester
 
-import traceback
 import time
 import sys
 

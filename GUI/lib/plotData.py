@@ -3,7 +3,8 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-import numpy as np
+# import numpy as np
+import np.genfromtxt, np.divide, np.cumsum, np.argwhere
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
@@ -98,3 +99,4 @@ def PlotData(config):
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
     plt.show()
+    return True
