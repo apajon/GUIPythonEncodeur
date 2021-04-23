@@ -30,6 +30,8 @@ class configFile:
     def NewFile(self, fileText):
         if not fileText:
             fileText = "Measures_ "
+        elif not fileText[-1]=="_":
+            fileText += "_"
 
         self.changeConfig('filenameLogger', 'filename',fileText)
 
@@ -38,6 +40,8 @@ class configFile:
     def NewPath(self, pathText):
         if not pathText:
             pathText = "./save_measures/"
+        elif not pathText[-1]=="/":
+            pathText += "/"
         
         self.changeConfig('filenameLogger', 'folderpath', pathText)
 
