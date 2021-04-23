@@ -50,7 +50,7 @@ class Ui_Encoder(Ui_Tester):
         # Set range of the SpinBox
         self.DataIntervalSpinBox.setRange(minValueDataInt, maxValueDataInt)
         # Set displayed value from saved one in config
-        self.DataIntervalSpinBox.setPlainText(self.config.configuration().get('encoder','datainterval'))
+        self.DataIntervalSpinBox.setValue(self.config.configuration().getint('encoder','datainterval'))
         # Default text of filename
         self.textEditFile.setPlainText(self.config.configuration().get('filenameLogger','filename_default'))
         # Default text of Directory
