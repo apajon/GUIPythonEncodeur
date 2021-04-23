@@ -47,6 +47,10 @@ class Ui_Encoder(Ui_Tester):
         minValueDataInt = self.config.configuration().getint('encoder','minValueDataInt')
         # Maximum value of the SpinBox which correspond to the maximum of interval time 1000ms
         maxValueDataInt = self.config.configuration().getint('encoder','maxValueDataInt')
+        # Set range of the SpinBox
+        self.DataIntervalSpinBox.setRange(minValueDataInt, maxValueDataInt)
+        # Set displayed value from saved one in config
+        self.DataIntervalSpinBox.setPlainText(self.config.configuration().get('encoder','datainterval'))
         # Default text of filename
         self.textEditFile.setPlainText(self.config.configuration().get('filenameLogger','filename_default'))
         # Default text of Directory
@@ -74,7 +78,6 @@ class Ui_Encoder(Ui_Tester):
         self.DirectoryConfirmB.clicked.connect(self.NewPath)
         self.ToConnectButton.clicked.connect(self.ConnectToEnco)
         self.ToDisconnectButton.clicked.connect(self.DisconnectEnco)
-        self.DataIntervalSpinBox.setRange(minValueDataInt, maxValueDataInt)
         self.DataIntervalButton.clicked.connect(self.SetDataInterval)
         self.ToResetDistance.clicked.connect(self.ResetDistance)
         
@@ -162,7 +165,7 @@ class Ui_Encoder(Ui_Tester):
         self.config.NewPath(self.textEditDirectory.toPlainText())
 
     def SetDataInterval(self):
-        self.config.SetDataInterval(self.spinBox.value())
+        self.config.SetDataInterval(self.DataIntervalSpinBox.value())
 
     def PlotData(self):
         if not PlotData(self.config.configuration()):
