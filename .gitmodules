@@ -1,6 +1,6 @@
 [submodule "GUI_QT_ONLY"]
 	path = GUI_QT_ONLY
-	url = https://github.com/WilliamBonilla62/GUI_QT_ONLY.git
+url=https://github.com/apajon/GUI_QT_ONLY.git
 [submodule "GUI/api_phidget_n_MQTT"]
 	path = GUI/api_phidget_n_MQTT
 	url = https://apajon@github.com/apajon/api_phidget_n_MQTT.git
