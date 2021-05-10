@@ -84,25 +84,28 @@ class Ui_Encoder(Ui_Tester):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.displayMeasuresLCD)
 
-        self.satusBarCount = [0,0]
         self.timerStatusBar = QtCore.QTimer()
         self.timerStatusBar.timeout.connect(self.messageStatusBar)
         self.updateStatusBar()
         
     def updateStatusBar(self):
+        self.satusBarCount = [0,0]
         if self.timerStatusBar.isActive():
             self.timerStatusBar.stop()
 
-        self.statusDataInterval= "Data interval : "+str(8)+"ms"
-        self.statusFile = "totofhdsanll;kjmgfcmnljkdskjhcgmmbgklasbfds"
-        self.statusFolder = "fdnasjklmxvbalsnx,vfabljksnx,vafjklsxnvaflvnl,a"
+        self.statusDataInterval= self.config.configuration().getint('encoder','datainterval')
+        try:
+            self.statusFile = os.path.basename(self.saveData.fh.name)
+        except:
+            self.statusFile = self.config.configuration().get('filenameLogger','filename')
+        self.statusFolder = self.config.configuration().get('filenameLogger','folderpath')
         self.timerStatusBar.start(300)
 
     def messageStatusBar(self):
         msg_length=30
 
         if len(self.statusFile)>msg_length or len(self.statusFolder)>msg_length:
-            self.statusBar.showMessage(self.statusDataInterval+" | "
+            self.statusBar.showMessage("Data interval : "+self.statusDataInterval+"ms"+" | "
                                         +"file : "+self.statusFile[self.satusBarCount[0]:msg_length+self.satusBarCount[0]]+" | "
                                         +"folder : "+self.statusFolder[self.satusBarCount[1]:msg_length+self.satusBarCount[1]])
             self.satusBarCount[0]+=1
@@ -189,12 +192,15 @@ class Ui_Encoder(Ui_Tester):
 
     def NewFile(self):
         self.config.NewFile(self.textEditFile.toPlainText())
+        self.updateStatusBar()
 
     def NewPath(self):
         self.config.NewPath(self.textEditDirectory.toPlainText())
+        self.updateStatusBar()
 
     def SetDataInterval(self):
         self.config.SetDataInterval(self.DataIntervalSpinBox.value())
+        self.updateStatusBar()
 
     def PlotData(self):
         if not PlotData(self.config.configuration()):

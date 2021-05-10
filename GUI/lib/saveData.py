@@ -14,8 +14,8 @@ class saveData:
 
     def saveDataMQTT(self, client, config, isChecked):
         if isChecked:
-            fh = createLoggerFile.createLoggerFile(config)
-            client.fh = fh
+            self.fh = self.initFile(config)
+            client.fh = self.fh
             client.printLog = config.getboolean('Logger', 'printLog')
             client.firstLine = config.get('filenameLogger', 'firstLine')
             client.saveLog = config.getboolean('Logger', 'saveLog')
@@ -34,7 +34,7 @@ class saveData:
 
     def saveData(self, encoder, config, isChecked):
         if isChecked:
-            self.fh = createLoggerFile.createLoggerFile(config)
+            self.initFile(config)
             self.printLog = config.getboolean('Logger', 'printLog')
             self.firstLine = config.get('filenameLogger', 'firstLine')
             self.saveLog = config.getboolean('Logger', 'saveLog')
