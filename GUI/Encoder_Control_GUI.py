@@ -115,6 +115,10 @@ class Ui_Encoder(Ui_Tester):
                 self.satusBarCount[0] = 0
             if self.satusBarCount[1]+msg_length-10 >= len(self.statusFolder):
                 self.satusBarCount[1] = 0
+        else:
+            self.statusBar.showMessage("Data interval : "+self.statusDataInterval+"ms"+" | "
+                                        +"file : "+self.statusFile[self.satusBarCount[0]:msg_length+self.satusBarCount[0]]+" | "
+                                        +"folder : "+self.statusFolder[self.satusBarCount[1]:msg_length+self.satusBarCount[1]])
 
     def centerOnScreen(self):
         qtRectangle = self.frameGeometry()
