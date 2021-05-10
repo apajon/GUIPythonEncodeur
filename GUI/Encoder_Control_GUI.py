@@ -93,7 +93,7 @@ class Ui_Encoder(Ui_Tester):
         if self.timerStatusBar.isActive():
             self.timerStatusBar.stop()
 
-        self.statusDataInterval= self.config.configuration().getint('encoder','datainterval')
+        self.statusDataInterval= str(self.config.configuration().getint('encoder','datainterval'))
         try:
             self.statusFile = os.path.basename(self.saveData.fh.name)
         except:
