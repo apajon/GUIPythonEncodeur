@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Tester(object):
     def setupUi(self, Tester):
         Tester.setObjectName("Tester")
-        Tester.resize(595, 334)
+        Tester.resize(595, 358)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../../Downloads/Cirris.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Tester.setWindowIcon(icon)
@@ -163,6 +163,9 @@ class Ui_Tester(object):
         self.verticalLayout.addWidget(self.lcdTextDistance)
         self.gridLayout_2.addWidget(self.groupBox_3, 0, 0, 1, 1)
         Tester.setCentralWidget(self.centralwidget)
+        self.statusBar = QtWidgets.QStatusBar(Tester)
+        self.statusBar.setObjectName("statusBar")
+        Tester.setStatusBar(self.statusBar)
 
         self.retranslateUi(Tester)
         QtCore.QMetaObject.connectSlotsByName(Tester)

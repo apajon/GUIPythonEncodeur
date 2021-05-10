@@ -84,6 +84,35 @@ class Ui_Encoder(Ui_Tester):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.displayMeasuresLCD)
 
+        self.satusBarCount = [0,0]
+        self.timerStatusBar = QtCore.QTimer()
+        self.timerStatusBar.timeout.connect(self.messageStatusBar)
+        self.updateStatusBar()
+        
+    def updateStatusBar(self):
+        if self.timerStatusBar.isActive():
+            self.timerStatusBar.stop()
+
+        self.statusDataInterval= "Data interval : "+str(8)+"ms"
+        self.statusFile = "totofhdsanll;kjmgfcmnljkdskjhcgmmbgklasbfds"
+        self.statusFolder = "fdnasjklmxvbalsnx,vfabljksnx,vafjklsxnvaflvnl,a"
+        self.timerStatusBar.start(300)
+
+    def messageStatusBar(self):
+        msg_length=30
+
+        if len(self.statusFile)>msg_length or len(self.statusFolder)>msg_length:
+            self.statusBar.showMessage(self.statusDataInterval+" | "
+                                        +"file : "+self.statusFile[self.satusBarCount[0]:msg_length+self.satusBarCount[0]]+" | "
+                                        +"folder : "+self.statusFolder[self.satusBarCount[1]:msg_length+self.satusBarCount[1]])
+            self.satusBarCount[0]+=1
+            self.satusBarCount[1]+=1
+            
+            if self.satusBarCount[0]+msg_length-10 >= len(self.statusFile):
+                self.satusBarCount[0] = 0
+            if self.satusBarCount[1]+msg_length-10 >= len(self.statusFolder):
+                self.satusBarCount[1] = 0
+
     def centerOnScreen(self):
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
