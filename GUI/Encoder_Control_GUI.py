@@ -34,6 +34,8 @@ class Ui_Encoder(Ui_Tester):
     def setupUi(self, Tester):
         super().setupUi(Tester)
 
+        self.newWidgets(Tester)
+
         # import config file could depending on the name of the config file
         file = 'config.cfg'
         self.config = configFile.configFile(configFilename=file)
@@ -72,6 +74,22 @@ class Ui_Encoder(Ui_Tester):
 
         # User interaction----------------------------------------------------------------------------------------------
         # This blocks links all the functions with all interaction possible between the user and the GUI.
+        self.connectWidgets()
+        
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.displayMeasuresLCD)
+
+        self.timerStatusBar = QtCore.QTimer()
+        self.timerStatusBar.timeout.connect(self.messageStatusBar)
+        self.updateStatusBar()
+
+    def newWidgets(self,Tester):
+        pass
+
+    def initMenuBar(self):
+        pass
+
+    def connectWidgets(self):
         self.CloseButton.clicked.connect(self.closeEvent)
         self.RegisterEnco.stateChanged.connect(self.Savedata)
         self.DisplayPlotButton.clicked.connect(self.PlotData)
@@ -81,13 +99,12 @@ class Ui_Encoder(Ui_Tester):
         self.ToDisconnectButton.clicked.connect(self.DisconnectEnco)
         self.DataIntervalButton.clicked.connect(self.SetDataInterval)
         self.ToResetDistance.clicked.connect(self.ResetDistance)
-        
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.displayMeasuresLCD)
 
-        self.timerStatusBar = QtCore.QTimer()
-        self.timerStatusBar.timeout.connect(self.messageStatusBar)
-        self.updateStatusBar()
+        self.actionStyle.triggered.connect(self.dialogStyle)
+        self.actionStyleDefault.triggered.connect(self.styleDefault)
+
+        pass
+
         
     def updateStatusBar(self):
         self.satusBarCount = [0,0]
@@ -274,6 +291,8 @@ class Ui_Encoder(Ui_Tester):
             return True
         else:
             return False
+
+    
 
     # Adds all the title to the object on the GUI
     # For renaming the objects you do it instead of going trough QT

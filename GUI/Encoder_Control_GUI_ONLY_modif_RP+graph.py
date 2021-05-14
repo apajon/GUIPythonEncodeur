@@ -62,36 +62,6 @@ class Ui_Style(Ui_Tester):
         self.Liste.insertItem(2, "William Ricardo Bonilla Villatero")
         self.verticalLayout_5.addWidget(self.Liste)
 
-
-
-        self.tabWidget.addTab(self.tab_4, "")
-        self.gridLayout_6.addWidget(self.tabWidget, 0, 1, 1, 1)
-        self.gridLayout_2.addLayout(self.gridLayout_6, 0, 0, 1, 1)
-        self.CloseButton = QtWidgets.QPushButton(self.centralwidget)
-        self.CloseButton.setObjectName("CloseButton")
-        self.gridLayout_2.addWidget(self.CloseButton, 0, 1, 1, 1, QtCore.Qt.AlignBottom)
-        Tester.setCentralWidget(self.centralwidget)
-        self.menuBar = QtWidgets.QMenuBar(Tester)
-        self.menuBar.setEnabled(True)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 720, 26))
-        self.menuBar.setObjectName("menuBar")
-        self.menuAide = QtWidgets.QMenu(self.menuBar)
-        self.menuAide.setObjectName("menuAide")
-        self.menuAffichage = QtWidgets.QMenu(self.menuBar)
-        self.menuAffichage.setObjectName("menuAffichage")
-
-        self.menuCouleur = QtWidgets.QMenu(self.menuAffichage)
-        self.menuCouleur.setObjectName("menuCouleur")
-
-        self.menuFont = QtWidgets.QMenu(self.menuAffichage)
-        self.menuFont.setObjectName("menuFont")
-
-        self.menuLanguage_2 = QtWidgets.QMenu(self.menuAffichage)
-        self.menuLanguage_2.setObjectName("menuLanguage_2")
-        Tester.setMenuBar(self.menuBar)
-        self.statusBar = QtWidgets.QStatusBar(Tester)
-        self.statusBar.setObjectName("statusBar")
-        Tester.setStatusBar(self.statusBar)
         self.actionFR = QtWidgets.QAction(Tester)
         self.actionFR.setCheckable(True)
         self.actionFR.setObjectName("actionFR")
@@ -106,14 +76,12 @@ class Ui_Style(Ui_Tester):
         self.actionStyle.setObjectName("actionStyle")
         self.actionStyle.setShortcut("CTRL+M")
         self.actionStyle.setText("Modifier le style")
-        self.actionStyle.triggered.connect(self.dialogStyle)
 
         self.actionStyleDefault = QtWidgets.QAction(Tester)
         self.actionStyleDefault.setCheckable(False)
         self.actionStyleDefault.setObjectName("actionStyleDefault")
         self.actionStyleDefault.setShortcut("CTRL+D")
         self.actionStyleDefault.setText("Style par défaut")
-        self.actionStyleDefault.triggered.connect(self.styleDefault)
 
         self.actionCouleur = QtWidgets.QAction(Tester)
         self.actionCouleur.setCheckable(False)
@@ -135,11 +103,11 @@ class Ui_Style(Ui_Tester):
         #self.actionMode_sombre.triggered.connect(self.modeSombre)
 
 
-        self.actionFR_2.setIcon(QtGui.QIcon('images/drapeauFrance.png'))
+        # self.actionFR_2.setIcon(QtGui.QIcon('images/drapeauFrance.png'))
         self.actionFR_2.setShortcut("CTRL+F")
 
 
-        self.actionENG_2.setIcon(QtGui.QIcon('images/drapeauGB.jpg'))
+        # self.actionENG_2.setIcon(QtGui.QIcon('images/drapeauGB.jpg'))
         self.actionENG_2.setShortcut("CTRL+E")
 
         self.menuCouleur.addAction(self.actionMode_clair)
@@ -164,6 +132,14 @@ class Ui_Style(Ui_Tester):
         self.tabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(Tester)
 
+        self.actionStyle.triggered.connect(self.dialogStyle)
+        self.actionStyleDefault.triggered.connect(self.styleDefault)
+
+    def retranslateUi(self, Tester):
+        super().retranslateUi(Tester)
+
+        self.label33.setText(_translate("Tester", "Remerciements:"))
+        self.actionMode_somble.setText(_translate("Tester", "Mode sombre "))
 
 if __name__ == "__main__":
     import sys
