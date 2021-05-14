@@ -25,6 +25,7 @@ import os
 from lib import configFile
 from lib import saveData
 from lib.plotData import PlotData
+from lib.MplCanvas import MplCanvas
 
 from api_phidget_n_MQTT.src.lib_api_phidget22 import phidget22Handler as handler
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
