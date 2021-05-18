@@ -10,7 +10,7 @@
 # fortement inspiré de: https://www.youtube.com/watch?v=Fk1TBoBcrR4&list=LL7klEEqnwSAUvihtsM3fGtg à plusieurs reprises,
 # de https://www.mfitzp.com/tutorials/plotting-matplotlib/
 # et de https://programtalk.com/python-examples/PyQt5.QtGui.QDesktopServices.openUrl/
-#inspiré de https://stackoverflow.com/questions/60563477/pyqt5-tabwidget-tab-bar-blank-area-background-color
+# inspiré de https://stackoverflow.com/questions/60563477/pyqt5-tabwidget-tab-bar-blank-area-background-color
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from lib.Encoder_Control_GUI_ONLY import Ui_Tester
@@ -18,6 +18,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import random
 
+from lib import configFile
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -42,64 +43,100 @@ class Ui_Style(Ui_Tester):
         Tester.setFont(QtGui.QFont("shelldlg2", 8))
 
     def modeSombre(self):
-        Tester.setStyleSheet("background-color : rgb(15,15,15); color : white")
+        self.colorBackground = "rgb(25,25,25)"
+        self.colorText = "rgb(255,255,255)"
+        self.colorTabWidget = "rgb(0,0,0)"
+        self.colorButton = "rgb(45,45,45)"
+        self.colorMenuBar = "rgb(0,0,0)"
 
-        self.tabWidget.setStyleSheet('''
-        QTabWidget {background: rgb(0,0,0); border: none;}
-        QTabBar::tab {background: rgb(30,30,30);}''')
-
-        self.menuBar.setStyleSheet("background:rgb(0,0,0)")
-
-        self.DirectoryConfirmB.setStyleSheet("background:rgb(30,30,30)")
-        self.FileConfirmButton.setStyleSheet("background:rgb(30,30,30)")
-        self.DataIntervalButton.setStyleSheet("background:rgb(30,30,30)")
-        self.CloseButton.setStyleSheet("background:rgb(30,30,30)")
-        self.DisplayPlotButton.setStyleSheet("background:rgb(30,30,30)")
-        self.ToConnectButton.setStyleSheet("background:rgb(30,30,30)")
-        self.ToDisconnectButton.setStyleSheet("background:rgb(30,30,30)")
-        self.ToResetDistance.setStyleSheet("background:rgb(30,30,30)")
-
+        self.updateColor()
 
     def modeClair(self):
-        Tester.setStyleSheet("background-color : rgb(240,240,240); color : black")
+        self.colorBackground = "rgb(240,240,240)"
+        self.colorText = "rgb(0,0,0)"
+        self.colorTabWidget = "rgb(255,255,255)"
+        self.colorButton = "rgb(225,225,225)"
+        self.colorMenuBar = "rgb(255,255,255)"
 
-        self.tabWidget.setStyleSheet('''
-            QTabWidget {background: rgb(255,255,255); border: none;}
-            QTabBar::tab {background: rgb(225,225,225);}''')
-
-        self.menuBar.setStyleSheet("background:rgb(255,255,255)")
-
-        self.DirectoryConfirmB.setStyleSheet("background:rgb(225,225,225)")
-        self.FileConfirmButton.setStyleSheet("background:rgb(225,225,225)")
-        self.DataIntervalButton.setStyleSheet("background:rgb(225,225,225)")
-        self.CloseButton.setStyleSheet("background:rgb(225,225,225)")
-        self.DisplayPlotButton.setStyleSheet("background:rgb(225,225,225)")
-        self.ToConnectButton.setStyleSheet("background:rgb(225,225,225)")
-        self.ToDisconnectButton.setStyleSheet("background:rgb(225,225,225)")
-        self.ToResetDistance.setStyleSheet("background:rgb(225,225,225)")
+        self.updateColor()
 
     def choixCouleurBackground(self):
-        self.colorBackground = QtWidgets.QColorDialog.getColor()
-        Tester.setStyleSheet("background-color:{};".format(self.colorBackground.name()))
+        self.colorBackground = QtWidgets.QColorDialog.getColor().name()
+        self.updateColorTester()
+
+
 
     def choixCouleurText(self):
-        self.colorText = QtWidgets.QColorDialog.getColor()
-        Tester.setStyleSheet("color:{};".format(self.colorText.name()))
+        self.colorText = QtWidgets.QColorDialog.getColor().name()
+        self.updateColorTester()
+
+
+        #Fonctions génériques sur les couleurs
+
+    def updateColor(self):
+        self.updateColorTester()
+        self.updateColorTabWidget()
+        self.updateColorMenuBar()
+        self.updateColorButton()
+
+    def updateColorTester(self):
+        Tester.setStyleSheet("background-color:" + self.colorBackground + ";"
+            "color:" + self.colorText)
+
+    def updateColorTabWidget(self):
+        self.tabWidget.setStyleSheet('''
+                QTabWidget {
+                    background'''+ self.colorTabWidget +''';
+                    border: none;
+                }
+                QTabBar::tab {
+                    background:'''+ self.colorTabWidget +''';
+                }
+            ''')
+
+    def updateColorMenuBar(self):
+        self.menuBar.setStyleSheet("background:" + self.colorMenuBar)
+
+    def updateColorButton(self):
+        self.DirectoryConfirmB.setStyleSheet("background:" + self.colorButton)
+        self.FileConfirmButton.setStyleSheet("background:" + self.colorButton)
+        self.DataIntervalButton.setStyleSheet("background:" + self.colorButton)
+        self.CloseButton.setStyleSheet("background:" + self.colorButton)
+        self.DisplayPlotButton.setStyleSheet("background:" + self.colorButton)
+        self.ToConnectButton.setStyleSheet("background:" + self.colorButton)
+        self.ToDisconnectButton.setStyleSheet("background:" + self.colorButton)
+        self.ToResetDistance.setStyleSheet("background:" + self.colorButton)
 
     def indexPropos(self):
         self.tabWidget.setCurrentIndex(3)
 
     def openRepo(self):
-         QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://github.com/WilliamBonilla62/GUIPythonEncodeur"))
+        try:
+            repoAdress = self.config.configuration().get('REPO', 'GitHub')
+        except:
+            repoAdress = 'https://github.com/WilliamBonilla62/GUIPythonEncodeur/'
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(repoAdress))
 
     def afficherGraphique(self):
-         self.sc = MplCanvas(self, width=5, height=4, dpi=100)
-         self.sc.axes.plot([0, 1, 2, 3, 4, 5, 6, 7], [random.random(),random.random(),random.random(),random.random(),random.random(),random.random(),random.random(),random.random()])
-         self.gridLayout_5.addWidget(self.sc, 0, 0, 1, 1)
-         self.gridLayout_9.addLayout(self.gridLayout_5, 0, 0, 1, 1)
+        self.sc = MplCanvas(self, width=5, height=4, dpi=100)
+        self.sc.axes.plot([0, 1, 2, 3, 4, 5, 6, 7],
+                          [random.random(), random.random(), random.random(), random.random(), random.random(),
+                           random.random(), random.random(), random.random()])
+        self.gridLayout_5.addWidget(self.sc, 0, 0, 1, 1)
+        self.gridLayout_9.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
     def setupUi(self, Tester):
         super().setupUi(Tester)
+
+        # import config file could depending on the name of the config file
+        file = 'config.cfg'
+        self.config = configFile.configFile(configFilename=file)
+
+        self.colorBackground = ""
+        self.colorText = ""
+        self.colorTabWidget = ""
+        self.colorButton = ""
+        self.colorMenuBar = ""
 
         self.labelRemerciements = QtWidgets.QLabel("Remerciements:")
         self.verticalLayout_5.addWidget(self.labelRemerciements)
@@ -176,8 +213,6 @@ class Ui_Style(Ui_Tester):
         self.DisplayPlotButton.clicked.connect(self.afficherGraphique)
         self.actionPaletteBackground.triggered.connect(self.choixCouleurBackground)
         self.actionPaletteText.triggered.connect(self.choixCouleurText)
-
-
 
     def retranslateUi2(self, Tester):
         super().retranslateUi(Tester)
