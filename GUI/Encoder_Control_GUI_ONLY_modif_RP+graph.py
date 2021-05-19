@@ -42,6 +42,18 @@ class Ui_Style(Ui_Tester):
         self.tabWidget.setFont(QtGui.QFont("shelldlg2", 8))
         Tester.setFont(QtGui.QFont("shelldlg2", 8))
 
+    # def uncheckMode(self,arg):
+    #     switcher = {
+    #         "modeSombre": self.actionMode_sombre.setChecked,
+    #         "modeClair": self.actionMode_clair.setChecked
+    #     }
+    #     func = switcher.get(arg, [])
+    #     func(False)
+
+
+    #     self.updateColor()
+    #     pass
+
     def modeSombre(self):
         self.colorBackground = "rgb(25,25,25)"
         self.colorText = "rgb(255,255,255)"
@@ -50,6 +62,8 @@ class Ui_Style(Ui_Tester):
         self.colorMenuBar = "rgb(0,0,0)"
 
         self.updateColor()
+        if self.actionMode_clair.isChecked():
+            self.actionMode_clair.setChecked(False)
 
     def modeClair(self):
         self.colorBackground = "rgb(240,240,240)"
@@ -59,12 +73,12 @@ class Ui_Style(Ui_Tester):
         self.colorMenuBar = "rgb(255,255,255)"
 
         self.updateColor()
+        if self.actionMode_sombre.isChecked():
+            self.actionMode_sombre.setChecked(False)
 
     def choixCouleurBackground(self):
         self.colorBackground = QtWidgets.QColorDialog.getColor().name()
         self.updateColorTester()
-
-
 
     def choixCouleurText(self):
         self.colorText = QtWidgets.QColorDialog.getColor().name()
@@ -84,17 +98,24 @@ class Ui_Style(Ui_Tester):
             "color:" + self.colorText)
 
     def updateColorTabWidget(self):
+        self.tab.setStyleSheet("background-color:"+"yellow"+";")
+        self.tab_2.setStyleSheet("background-color:"+"yellow"+";")
         styleStr = str('''
                 QTabWidget {{
                     background: {0};
                 }}
                 QTabBar::tab {{
                     background: {1};
+                    color: black
                 }}
-                QTabBar::tab:selected, QTabBar::tab:hover {{
+                QTabBar::tab:selected {{
                     background: {2};
                 }}
-                '''.format("yellow","orange","red"))
+                 QTabBar::tab:hover {{
+                    background: {3};
+                    color: white
+                }}
+                '''.format("yellow","orange","red","blue"))
         self.tabWidget.setStyleSheet(styleStr)
 
         # self.tabWidget.setStyleSheet('''
@@ -188,10 +209,8 @@ class Ui_Style(Ui_Tester):
         self.actionPaletteText.setText("Palette de couleurs texte")
 
         self.actionMode_clair.setShortcut("CTRL+C")
-        self.actionMode_clair.triggered.connect(self.modeClair)
 
         self.actionMode_sombre.setShortcut("CTRL+S")
-        self.actionMode_sombre.triggered.connect(self.modeSombre)
 
         self.actionFR.setIcon(QtGui.QIcon('lib/images/drapeauFrance.png'))
         self.actionFR.setShortcut("CTRL+F")
@@ -221,6 +240,10 @@ class Ui_Style(Ui_Tester):
         self.retranslateUi2(Tester)
         self.tabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(Tester)
+
+
+        self.actionMode_clair.triggered.connect(self.modeClair) 
+        self.actionMode_sombre.triggered.connect(self.modeSombre)
 
         self.actionStyle.triggered.connect(self.dialogStyle)
         self.actionStyleDefault.triggered.connect(self.styleDefault)
