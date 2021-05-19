@@ -80,19 +80,35 @@ class Ui_Style(Ui_Tester):
         self.updateColorButton()
 
     def updateColorTester(self):
-        Tester.setStyleSheet("background-color:" + self.colorBackground + ";"
+        Tester.setStyleSheet("background-color:" + self.colorBackground + ";"+
             "color:" + self.colorText)
 
     def updateColorTabWidget(self):
-        self.tabWidget.setStyleSheet('''
-                QTabWidget {
-                    background'''+ self.colorTabWidget +''';
-                    border: none;
-                }
-                QTabBar::tab {
-                    background:'''+ self.colorTabWidget +''';
-                }
-            ''')
+        styleStr = str('''
+                QTabWidget {{
+                    background: {0};
+                }}
+                QTabBar::tab {{
+                    background: {1};
+                }}
+                QTabBar::tab:selected, QTabBar::tab:hover {{
+                    background: {2};
+                }}
+                '''.format("yellow","orange","red"))
+        self.tabWidget.setStyleSheet(styleStr)
+
+        # self.tabWidget.setStyleSheet('''
+        #         QTabWidget {
+        #             background'''+ self.colorTabWidget +''';
+        #             border: none;
+        #         }
+        #         QTabBar::tab {
+        #             background:'''+ self.colorTabWidget +''';
+        #         }
+        #         QTabBar::tab:selected, QTabBar::tab:hover {
+        #             background:'''+self.colorTabWidget+''';
+        #         }
+        #     ''')
 
     def updateColorMenuBar(self):
         self.menuBar.setStyleSheet("background:" + self.colorMenuBar)
