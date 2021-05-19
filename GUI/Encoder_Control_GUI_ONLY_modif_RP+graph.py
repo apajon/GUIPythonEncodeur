@@ -45,7 +45,6 @@ class Ui_Style(Ui_Tester):
     def uncheckColorModeAll(self):
         for action in self.menuCouleur.actions():
             action.setChecked(False)
-        # self.menuCouleur.menuAction().setChecked(True)
 
     def checkOneColorMode(self,actionName):
         self.uncheckColorModeAll()
@@ -55,22 +54,34 @@ class Ui_Style(Ui_Tester):
         action.setChecked(True)
 
     def modeSombre(self):
-        self.colorBackground = "rgb(25,25,25)"
+        self.colorBackground = "rgb(43,43,43)"
         self.colorText = "rgb(255,255,255)"
-        self.colorTabWidget = "rgb(0,0,0)"
-        self.colorButton = "rgb(45,45,45)"
-        self.colorMenuBar = "rgb(0,0,0)"
+        self.colorTabWidget = "rgb(30,30,30)"
+        self.colorButton = "rgb(30,30,30)"
+        self.colorMenuBar = "rgb(30,30,30)"
+
+        self.colorTabWidget="rgb(63,63,63)"
+
+        self.colorTabsDefault = "rgb(30,30,30)"
+        self.colorTabSelected = "rgb(63,63,63)"
+        self.colorTabHover = "blue"
 
         self.updateColor()
         self.checkOneColorMode("actionMode_sombre")
 
 
     def modeClair(self):
-        self.colorBackground = "rgb(240,240,240)"
+        self.colorBackground = "rgb(235,235,235)"
         self.colorText = "rgb(0,0,0)"
         self.colorTabWidget = "rgb(255,255,255)"
-        self.colorButton = "rgb(225,225,225)"
+        self.colorButton = "rgb(200,200,200)"
         self.colorMenuBar = "rgb(255,255,255)"
+
+        self.colorTabWidget="rgb(255,255,255)"
+
+        self.colorTabsDefault ="rgb(235,235,235)"
+        self.colorTabSelected ="rgb(255,255,255)"
+        self.colorTabHover ="blue"
 
         self.updateColor()
         self.checkOneColorMode("actionMode_clair")
@@ -99,27 +110,24 @@ class Ui_Style(Ui_Tester):
             "color:" + self.colorText)
 
     def updateColorTabWidget(self):
-        # self.tab.setStyleSheet("background-color:"+"yellow"+";")
-        # self.tab_2.setStyleSheet("background-color:"+"yellow"+";")
+
         for x in self.tabWidget.children()[0].children():
             try:
-                x.setStyleSheet("background-color:"+"yellow"+";")
+                x.setStyleSheet("background-color:"+self.colorTabWidget+";")
             except:
                 pass
         
         styleStr = str('''
                 QTabBar::tab {{
-                    background: {1};
-                    color: black
+                    background: {0};
                 }}
                 QTabBar::tab:selected {{
-                    background: {2};
+                    background: {1};
                 }}
                  QTabBar::tab:hover {{
-                    background: {3};
-                    color: white
+                    background: {2};
                 }}
-                '''.format("yellow","orange","red","blue"))
+                '''.format(self.colorTabsDefault, self.colorTabSelected, self.colorTabHover))
         self.tabWidget.setStyleSheet(styleStr)
 
         # self.tabWidget.setStyleSheet('''
@@ -136,7 +144,7 @@ class Ui_Style(Ui_Tester):
         #     ''')
 
     def updateColorMenuBar(self):
-        self.menuBar.setStyleSheet("background:" + self.colorMenuBar)
+        self.menuBar.setStyleSheet("background:" + self.colorMenuBar + ";" )
 
     def updateColorButton(self):
         self.DirectoryConfirmB.setStyleSheet("background:" + self.colorButton)
