@@ -42,17 +42,17 @@ class Ui_Style(Ui_Tester):
         self.tabWidget.setFont(QtGui.QFont("shelldlg2", 8))
         Tester.setFont(QtGui.QFont("shelldlg2", 8))
 
-    # def uncheckMode(self,arg):
-    #     switcher = {
-    #         "modeSombre": self.actionMode_sombre.setChecked,
-    #         "modeClair": self.actionMode_clair.setChecked
-    #     }
-    #     func = switcher.get(arg, [])
-    #     func(False)
+    def uncheckColorModeAll(self):
+        for action in self.menuCouleur.actions():
+            action.setChecked(False)
+        # self.menuCouleur.menuAction().setChecked(True)
 
-
-    #     self.updateColor()
-    #     pass
+    def checkOneColorMode(self,actionName):
+        self.uncheckColorModeAll()
+        for x in self.menuCouleur.actions():
+            if x.objectName() == actionName:
+                action = x
+        action.setChecked(True)
 
     def modeSombre(self):
         self.colorBackground = "rgb(25,25,25)"
@@ -62,8 +62,8 @@ class Ui_Style(Ui_Tester):
         self.colorMenuBar = "rgb(0,0,0)"
 
         self.updateColor()
-        if self.actionMode_clair.isChecked():
-            self.actionMode_clair.setChecked(False)
+        self.checkOneColorMode("actionMode_sombre")
+
 
     def modeClair(self):
         self.colorBackground = "rgb(240,240,240)"
@@ -73,16 +73,17 @@ class Ui_Style(Ui_Tester):
         self.colorMenuBar = "rgb(255,255,255)"
 
         self.updateColor()
-        if self.actionMode_sombre.isChecked():
-            self.actionMode_sombre.setChecked(False)
+        self.checkOneColorMode("actionMode_clair")
 
     def choixCouleurBackground(self):
         self.colorBackground = QtWidgets.QColorDialog.getColor().name()
         self.updateColorTester()
+        self.uncheckColorModeAll()
 
     def choixCouleurText(self):
         self.colorText = QtWidgets.QColorDialog.getColor().name()
         self.updateColorTester()
+        self.uncheckColorModeAll()
 
 
         #Fonctions génériques sur les couleurs
