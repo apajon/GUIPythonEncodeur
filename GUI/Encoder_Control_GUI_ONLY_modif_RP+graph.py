@@ -99,12 +99,15 @@ class Ui_Style(Ui_Tester):
             "color:" + self.colorText)
 
     def updateColorTabWidget(self):
-        self.tab.setStyleSheet("background-color:"+"yellow"+";")
-        self.tab_2.setStyleSheet("background-color:"+"yellow"+";")
+        # self.tab.setStyleSheet("background-color:"+"yellow"+";")
+        # self.tab_2.setStyleSheet("background-color:"+"yellow"+";")
+        for x in self.tabWidget.children()[0].children():
+            try:
+                x.setStyleSheet("background-color:"+"yellow"+";")
+            except:
+                pass
+        
         styleStr = str('''
-                QTabWidget {{
-                    background: {0};
-                }}
                 QTabBar::tab {{
                     background: {1};
                     color: black
