@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Encoder_Control_GUI.ui'
-#
-# Created by: PyQt5 UI code generator 5.14.1
-#
-# WARNING! All changes made in this file will be lost!
 # -------------------------------------------------------------------------
-# This code has been developped by: William Bonilla
-# For any questions you can contact my at WilliamBonilla@protonmail.com
+# This code has been initially developped by: William Bonilla
+# This code is now developped by: Adrien Pajon
+# For any questions you can contact my at adrien.pajon@gmail.com
 # ********************************************************************
 # Before starting to update the software please read the Readme file.
 # ********************************************************************
