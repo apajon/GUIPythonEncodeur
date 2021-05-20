@@ -146,7 +146,7 @@ class Ui_Style(Ui_Tester):
                                  QMenu::item:selected {{
                                     background: blue;
                                 }}
-                                '''.format(self.colorMenuBar, "blue"))
+                                '''.format(self.colorMenuBar))
 
 
         #self.menuBar.setStyleSheet("background:" + self.colorMenuBar + ";")
@@ -162,7 +162,7 @@ class Ui_Style(Ui_Tester):
                          QPushButton::hover {{
                             background-color: blue;
                         }}
-                        '''.format(self.colorButton, "blue"))
+                        '''.format(self.colorButton))
 
         self.DirectoryConfirmB.setStyleSheet(styleStr)
         self.FileConfirmButton.setStyleSheet(styleStr)
