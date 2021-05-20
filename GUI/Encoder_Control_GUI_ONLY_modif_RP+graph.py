@@ -33,13 +33,9 @@ class Ui_Style(Ui_Tester):
 
     def dialogStyle(self):
         style, choix = QtWidgets.QFontDialog.getFont()
-
-        if choix:
-            self.tabWidget.setFont(style)
-            Tester.setFont(style)
+        Tester.setFont(style)
 
     def styleDefault(self):
-        self.tabWidget.setFont(QtGui.QFont("shelldlg2", 8))
         Tester.setFont(QtGui.QFont("shelldlg2", 8))
 
     def uncheckColorModeAll(self):
@@ -87,8 +83,20 @@ class Ui_Style(Ui_Tester):
         self.checkOneColorMode("actionMode_clair")
 
     def choixCouleurBackground(self):
-        self.colorBackground = QtWidgets.QColorDialog.getColor().name()
-        self.updateColorTester()
+        color = QtWidgets.QColorDialog.getColor().name()
+        self.colorBackground = color
+
+        self.colorText = ""
+        self.colorTabWidget = color
+        self.colorButton = color
+        self.colorMenuBar = color
+
+        self.colorTabWidget = color
+
+        self.colorTabsDefault = color
+        self.colorTabSelected = color
+        self.colorTabHover = "blue"
+        self.updateColor()
         self.uncheckColorModeAll()
 
     def choixCouleurText(self):
@@ -130,31 +138,42 @@ class Ui_Style(Ui_Tester):
                 '''.format(self.colorTabsDefault, self.colorTabSelected, self.colorTabHover))
         self.tabWidget.setStyleSheet(styleStr)
 
-        # self.tabWidget.setStyleSheet('''
-        #         QTabWidget {
-        #             background'''+ self.colorTabWidget +''';
-        #             border: none;
-        #         }
-        #         QTabBar::tab {
-        #             background:'''+ self.colorTabWidget +''';
-        #         }
-        #         QTabBar::tab:selected, QTabBar::tab:hover {
-        #             background:'''+self.colorTabWidget+''';
-        #         }
-        #     ''')
 
     def updateColorMenuBar(self):
-        self.menuBar.setStyleSheet("background:" + self.colorMenuBar + ";" )
+
+        styleStr = str('''
+                                 QMenuBar {{
+                                    background-color: {0};
+                                }}
+                                 QMenu::item:selected {{
+                                    background: blue;
+                                }}
+                                '''.format(self.colorMenuBar, "blue"))
+
+
+        #self.menuBar.setStyleSheet("background:" + self.colorMenuBar + ";")
+        self.menuBar.setStyleSheet(styleStr)
+
 
     def updateColorButton(self):
-        self.DirectoryConfirmB.setStyleSheet("background:" + self.colorButton)
-        self.FileConfirmButton.setStyleSheet("background:" + self.colorButton)
-        self.DataIntervalButton.setStyleSheet("background:" + self.colorButton)
-        self.CloseButton.setStyleSheet("background:" + self.colorButton)
-        self.DisplayPlotButton.setStyleSheet("background:" + self.colorButton)
-        self.ToConnectButton.setStyleSheet("background:" + self.colorButton)
-        self.ToDisconnectButton.setStyleSheet("background:" + self.colorButton)
-        self.ToResetDistance.setStyleSheet("background:" + self.colorButton)
+
+        styleStr = str('''
+                         QPushButton {{
+                            background-color: {0};
+                        }}
+                         QPushButton::hover {{
+                            background-color: blue;
+                        }}
+                        '''.format(self.colorButton, "blue"))
+
+        self.DirectoryConfirmB.setStyleSheet(styleStr)
+        self.FileConfirmButton.setStyleSheet(styleStr)
+        self.DataIntervalButton.setStyleSheet(styleStr)
+        self.CloseButton.setStyleSheet(styleStr)
+        self.DisplayPlotButton.setStyleSheet(styleStr)
+        self.ToConnectButton.setStyleSheet(styleStr)
+        self.ToDisconnectButton.setStyleSheet(styleStr)
+        self.ToResetDistance.setStyleSheet(styleStr)
 
     def indexPropos(self):
         self.tabWidget.setCurrentIndex(3)
@@ -264,6 +283,7 @@ class Ui_Style(Ui_Tester):
         self.DisplayPlotButton.clicked.connect(self.afficherGraphique)
         self.actionPaletteBackground.triggered.connect(self.choixCouleurBackground)
         self.actionPaletteText.triggered.connect(self.choixCouleurText)
+
 
     def retranslateUi2(self, Tester):
         super().retranslateUi(Tester)
