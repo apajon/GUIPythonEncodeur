@@ -125,17 +125,23 @@ class Ui_Style(Ui_Tester):
             except:
                 pass
         
+        colorTextSplit=self.colorText[4:-1].split(',')
+        for x in range(len(self.tabWidget.children()[0].children())):
+            self.tabWidget.tabBar().setTabTextColor(x, QtGui.QColor.fromRgb(int(colorTextSplit[0]),int(colorTextSplit[1]),int(colorTextSplit[2])))
+
         styleStr = str('''
                 QTabBar::tab {{
                     background: {0};
                 }}
                 QTabBar::tab:selected {{
+                    color: red;
                     background: {1};
                 }}
                  QTabBar::tab:hover {{
-                    background: {2};
+                    color: yellow;
+                    background-color: {3};
                 }}
-                '''.format(self.colorTabsDefault, self.colorTabSelected, self.colorTabHover))
+                '''.format(self.colorTabsDefault, self.colorTabSelected, self.colorText, self.colorTabHover))
         self.tabWidget.setStyleSheet(styleStr)
 
 
