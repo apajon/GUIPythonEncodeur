@@ -24,8 +24,9 @@ from MplCanvas import MplCanvas
 class Ui_Style(Ui_Tester):
 
     def dialogStyle(self):
-        style, choix = QtWidgets.QFontDialog.getFont()
-        Tester.setFont(style)
+        (style, a) = QtWidgets.QFontDialog.getFont()
+        if a:
+            Tester.setFont(style)
 
     def styleDefault(self):
         Tester.setFont(QtGui.QFont("shelldlg2", 8))
@@ -146,11 +147,16 @@ class Ui_Style(Ui_Tester):
         styleStr = str('''
                                  QMenuBar {{
                                     background-color: {0};
+                                    color: {1};
+                                }}
+                                QMenu {{
+                                    background-color: {0};
+                                    color: {1};
                                 }}
                                  QMenu::item:selected {{
                                     background: blue;
                                 }}
-                                '''.format(self.colorMenuBar))
+                                '''.format(self.colorMenuBar, self.colorText.name()))
 
 
         #self.menuBar.setStyleSheet("background:" + self.colorMenuBar + ";")
