@@ -135,7 +135,7 @@ class Ui_Style(Ui_Tester):
                     background: {1};
                 }}
                  QTabBar::tab:hover {{
-                    color: yellow;
+                    color: white;
                     background-color: {3};
                 }}
                 '''.format(self.colorTabsDefault, self.colorTabSelected, self.colorText, self.colorTabHover))
@@ -148,13 +148,14 @@ class Ui_Style(Ui_Tester):
                                  QMenuBar {{
                                     background-color: {0};
                                     color: {1};
-                                }}
+                                    }}
                                 QMenu {{
                                     background-color: {0};
                                     color: {1};
                                 }}
                                  QMenu::item:selected {{
                                     background: blue;
+                                    color: white
                                 }}
                                 '''.format(self.colorMenuBar, self.colorText.name()))
 
