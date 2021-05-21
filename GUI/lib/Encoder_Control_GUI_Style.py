@@ -24,12 +24,23 @@ from MplCanvas import MplCanvas
 class Ui_Style(Ui_Tester):
 
     def dialogStyle(self):
-        (style, a) = QtWidgets.QFontDialog.getFont()
-        if a:
-            Tester.setFont(style)
+        styleFont, choix = QtWidgets.QFontDialog.getFont()
+        if choix:
+            self.styleFont = styleFont
+        else:
+            return
+
+        if not type(self.colorText)==type(QtGui.QColor()):
+            Tester.setFont(self.styleFont)
+        else:
+            self.updateColorTester()
 
     def styleDefault(self):
-        Tester.setFont(QtGui.QFont("shelldlg2", 8))
+        self.styleFont = QtGui.QFont("shelldlg2", 8)
+        if not type(self.colorText)==type(QtGui.QColor()):
+            Tester.setFont(self.styleFont)
+        else:
+            self.updateColorTester()
 
     def uncheckColorModeAll(self):
         for action in self.menuCouleur.actions():
@@ -76,7 +87,7 @@ class Ui_Style(Ui_Tester):
         self.checkOneColorMode("actionMode_clair")
 
     def choixCouleurBackground(self):
-        color = QtWidgets.QColorDialog.getColor().name()
+        color,choix = QtWidgets.QColorDialog.getColor().name()
         self.colorBackground = color
 
         # self.colorText = ""
@@ -107,8 +118,11 @@ class Ui_Style(Ui_Tester):
 
     def updateColorTester(self):
         Tester.setStyleSheet("background-color:" + self.colorBackground + ";")
+
         if type(self.colorText)==type(QtGui.QColor()):
-            self.centralwidget.setStyleSheet("color:" + self.colorText.name())
+            self.centralwidget.setStyleSheet("color:" + self.colorText.name()+";"+
+            "font-size:"+str(self.styleFont.pointSize())+"pt"+";"+
+             "font-family:"+ self.styleFont.family()+";")
 
     def updateColorTabText(self):
         if type(self.colorText)==type(QtGui.QColor()):
@@ -214,6 +228,7 @@ class Ui_Style(Ui_Tester):
         self.colorTabWidget = ""
         self.colorButton = ""
         self.colorMenuBar = ""
+        self.styleFont = QtGui.QFont("shelldlg2", 8)
 
         self.labelRemerciements = QtWidgets.QLabel("Remerciements:")
         self.verticalLayout_5.addWidget(self.labelRemerciements)
