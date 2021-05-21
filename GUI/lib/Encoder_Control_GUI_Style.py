@@ -43,7 +43,7 @@ class Ui_Style(Ui_Tester):
 
     def modeSombre(self):
         self.colorBackground = "rgb(43,43,43)"
-        self.colorText = QtGui.QColor.fromRgb(255,255,255)#"rgb(255,255,255)"
+        self.colorText = "rgb(255,255,255)"
         self.colorTabWidget = "rgb(30,30,30)"
         self.colorButton = "rgb(30,30,30)"
         self.colorMenuBar = "rgb(30,30,30)"
@@ -58,9 +58,10 @@ class Ui_Style(Ui_Tester):
         self.checkOneColorMode("actionMode_sombre")
 
 
+
     def modeClair(self):
         self.colorBackground = "rgb(235,235,235)"
-        self.colorText = QtGui.QColor.fromRgb(0,0,0)#"rgb(0,0,0)"
+        self.colorText = "rgb(0,0,0)"
         self.colorTabWidget = "rgb(255,255,255)"
         self.colorButton = "rgb(200,200,200)"
         self.colorMenuBar = "rgb(255,255,255)"
@@ -78,7 +79,6 @@ class Ui_Style(Ui_Tester):
         color = QtWidgets.QColorDialog.getColor().name()
         self.colorBackground = color
 
-        # self.colorText = ""
         self.colorTabWidget = color
         self.colorButton = color
         self.colorMenuBar = color
@@ -97,6 +97,7 @@ class Ui_Style(Ui_Tester):
         self.updateColorTabText()
         self.uncheckColorModeAll()
         #Fonctions génériques sur les couleurs
+
 
     def updateColor(self):
         self.updateColorTester()
@@ -146,14 +147,14 @@ class Ui_Style(Ui_Tester):
         styleStr = str('''
                                  QMenuBar {{
                                     background-color: {0};
+                                    color: {1}
                                 }}
                                  QMenu::item:selected {{
                                     background: blue;
                                 }}
-                                '''.format(self.colorMenuBar))
+                                '''.format(self.colorMenuBar, self.colorText))
 
 
-        #self.menuBar.setStyleSheet("background:" + self.colorMenuBar + ";")
         self.menuBar.setStyleSheet(styleStr)
 
 
@@ -207,6 +208,12 @@ class Ui_Style(Ui_Tester):
         self.colorTabWidget = ""
         self.colorButton = ""
         self.colorMenuBar = ""
+
+        self.colorTabWidget = ""
+
+        self.colorTabsDefault = ""
+        self.colorTabSelected = ""
+        self.colorTabHover = ""
 
         self.labelRemerciements = QtWidgets.QLabel("Remerciements:")
         self.verticalLayout_5.addWidget(self.labelRemerciements)
