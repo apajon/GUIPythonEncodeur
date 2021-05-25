@@ -23,6 +23,16 @@ from MplCanvas import MplCanvas
 
 class Ui_Style(Ui_Tester):
 
+    def __init__(self):
+        self.actionStyle = QtWidgets.QAction(Tester)
+        self.actionStyleDefault = QtWidgets.QAction(Tester)
+        self.actionPaletteText = QtWidgets.QAction(Tester)
+        self.labelRemerciements = QtWidgets.QLabel("Remerciements:")
+
+
+        self.actionPaletteBackground = QtWidgets.QAction(Tester)
+
+
     def dialogStyle(self):
         styleFont, choix = QtWidgets.QFontDialog.getFont()
         if choix:
@@ -216,12 +226,37 @@ class Ui_Style(Ui_Tester):
         self.gridLayout_5.addWidget(self.sc, 0, 0, 1, 1)
         self.gridLayout_9.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
+    def FR(self):
+        self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'FR')
+        self.configLang = self.configLangFR
+        self.retranslateUi2(Tester)
+
+    def ENG(self):
+        self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'ENG')
+        self.configLang = self.configLangENG
+        self.retranslateUi2(Tester)
+
     def setupUi(self, Tester):
         super().setupUi(Tester)
 
         # import config file could depending on the name of the config file
         file = 'config.cfg'
         self.config = configFile.configFile(configFilename=file)
+
+        # configLang
+        langFR = 'lang/FR.cfg'
+        self.configLangFR = configFile.configFile(configFilename=langFR)
+
+        langENG = 'lang/ENG.cfg'
+        self.configLangENG = configFile.configFile(configFilename=langENG)
+
+        self.configLang = self.configLangFR  # seulement pour intialiser la variable
+
+        langDefault = 'lang/Default.cfg'
+        self.configLangDefault = configFile.configFile(configFilename=langDefault)
+        self.paramLangDefault = self.configLangDefault.configuration().get('langDefault', 'lastChosen')
+        eval('self.' + self.paramLangDefault + '()')
+
 
         self.colorBackground = ""
         self.colorText = ""
@@ -230,34 +265,28 @@ class Ui_Style(Ui_Tester):
         self.colorMenuBar = ""
         self.styleFont = QtGui.QFont("shelldlg2", 8)
 
-        self.labelRemerciements = QtWidgets.QLabel("Remerciements:")
         self.verticalLayout_5.addWidget(self.labelRemerciements)
-
         self.Liste = QtWidgets.QListWidget()
         self.Liste.insertItem(0, "Adrien Pajon")
         self.Liste.insertItem(1, "Raymond-Pierre Bouchard")
         self.Liste.insertItem(2, "William Ricardo Bonilla Villatero")
         self.verticalLayout_5.addWidget(self.Liste)
 
-        self.actionStyle = QtWidgets.QAction(Tester)
         self.actionStyle.setCheckable(False)
         self.actionStyle.setObjectName("actionStyle")
         self.actionStyle.setShortcut("CTRL+M")
         self.actionStyle.setText("Modifier le style")
 
-        self.actionStyleDefault = QtWidgets.QAction(Tester)
         self.actionStyleDefault.setCheckable(False)
         self.actionStyleDefault.setObjectName("actionStyleDefault")
         self.actionStyleDefault.setShortcut("CTRL+D")
         self.actionStyleDefault.setText("Style par défaut")
 
-        self.actionPaletteBackground = QtWidgets.QAction(Tester)
         self.actionPaletteBackground.setCheckable(False)
         self.actionPaletteBackground.setObjectName("actionPaletteBackground")
         self.actionPaletteBackground.setShortcut("CTRL+P")
         self.actionPaletteBackground.setText("Palette de couleurs arrière plan")
 
-        self.actionPaletteText = QtWidgets.QAction(Tester)
         self.actionPaletteText.setCheckable(False)
         self.actionPaletteText.setObjectName("actionPaletteText")
         self.actionPaletteText.setShortcut("CTRL+Q")
@@ -308,12 +337,65 @@ class Ui_Style(Ui_Tester):
         self.actionPaletteBackground.triggered.connect(self.choixCouleurBackground)
         self.actionPaletteText.triggered.connect(self.choixCouleurText)
 
+        self.actionENG.triggered.connect(self.ENG)
+        self.actionFR.triggered.connect(self.FR)
 
     def retranslateUi2(self, Tester):
         super().retranslateUi(Tester)
         _translate = QtCore.QCoreApplication.translate
 
-        self.labelRemerciements.setText(_translate("Tester", "Remerciements:"))
+        self.labelRemerciements.setText(_translate("Tester", self.configLang.configuration().get('global', 'labelRemerciements')))
+        self.ToConnectButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'ToConnectButton')))
+        self.ToDisconnectButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'ToDisconnectButton')))
+        self.ToResetDistance.setText(_translate("Tester", self.configLang.configuration().get('global', 'ToResetDistance')))
+
+        self.lcdTextDistance.setText(_translate("Tester", self.configLang.configuration().get('global', 'lcdTextDistance')))
+        self.lcdTextPositionChange.setText(_translate("Tester", self.configLang.configuration().get('global', 'lcdTextPositionChange')))
+        self.lcdTextTimeChange.setText(_translate("Tester", self.configLang.configuration().get('global', 'lcdTextTimeChange')))
+        self.lcdTextTimeRecording.setText(_translate("Tester", self.configLang.configuration().get('global', 'lcdTextTimeRecording')))
+
+        self.groupBox_3.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'groupBox_3')))
+        self.groupBox_5.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'groupBox_5')))
+        self.groupBox_2.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'groupBox_2')))
+        self.RegisterEnco.setText(_translate("Tester", self.configLang.configuration().get('global', 'RegisterEnco')))
+
+        self.CloseButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'CloseButton')))
+        #self.tab.setWindowIconText(_translate("Tester", self.configLang.configuration().get('global', 'tab')))
+        #self.tab_2.setWindowIconText(_translate("Tester", self.configLang.configuration().get('global', 'tab_2')))
+        #self.tab_3.setWindowIconText(_translate("Tester", self.configLang.configuration().get('global', 'tab_3')))
+        #self.tab_4.setWindowIconText(_translate("Tester", self.configLang.configuration().get('global', 'tab_4')))
+
+        self.menuAffichage.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuAffichage')))
+        self.menuCouleur.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuCouleur')))
+        self.menuAide.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuAide')))
+        self.actionRepo.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionRepo')))
+        self.action_propos.setText(_translate("Tester", self.configLang.configuration().get('global', 'action_propos')))
+
+        self.textBoxDirectory.setText(_translate("Tester", self.configLang.configuration().get('global', 'textBoxDirectory')))
+        self.textBoxFile.setText(_translate("Tester", self.configLang.configuration().get('global', 'textBoxFile')))
+        self.textBoxDataInterval.setText(_translate("Tester", self.configLang.configuration().get('global', 'textBoxDataInterval')))
+
+        self.DirectoryConfirmB.setText(_translate("Tester", self.configLang.configuration().get('global', 'DirectoryConfirmB')))
+        self.FileConfirmButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'FileConfirmButton')))
+        self.DataIntervalButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'DataIntervalButton')))
+
+        self.DisplayPlotButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'DisplayPlotButton')))
+        self.urlRepo_2.setText(_translate("Tester", self.configLang.configuration().get('global', 'urlRepo_2')))
+        self.urlRepo.setText(_translate("Tester", self.configLang.configuration().get('global', 'urlRepo')))
+
+        self.actionStyle.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionStyle')))
+        self.actionStyleDefault.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionStyleDefault')))
+        self.actionPaletteBackground.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionPaletteBackground')))
+        self.actionPaletteText.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionPaletteText')))
+        self.actionMode_clair.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionMode_clair')))
+        self.actionMode_sombre.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionMode_sombre')))
+        self.actionFR.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionFR')))
+        self.actionENG.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionENG')))
+        #self.menuFont.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuFont')))
+
+
+
+
 
 
 if __name__ == "__main__":
