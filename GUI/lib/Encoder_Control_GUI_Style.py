@@ -101,7 +101,6 @@ class Ui_Style(Ui_Tester):
         color,choix = QtWidgets.QColorDialog.getColor().name()
         self.colorBackground = color
 
-        # self.colorText = ""
         self.colorTabWidget = color
         self.colorButton = color
         self.colorMenuBar = color
@@ -344,55 +343,59 @@ class Ui_Style(Ui_Tester):
         super().retranslateUi(Tester)
         _translate = QtCore.QCoreApplication.translate
 
-        self.labelRemerciements.setText(_translate("Tester", self.configLang.configuration().get('global', 'labelRemerciements')))
-        self.ToConnectButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'ToConnectButton')))
-        self.ToDisconnectButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'ToDisconnectButton')))
-        self.ToResetDistance.setText(_translate("Tester", self.configLang.configuration().get('global', 'ToResetDistance')))
+        #Buttons
+        self.ToConnectButton.setText(_translate("Tester", self.configLang.configuration().get('buttons', 'ToConnectButton')))
+        self.ToDisconnectButton.setText(_translate("Tester", self.configLang.configuration().get('buttons', 'ToDisconnectButton')))
+        self.ToResetDistance.setText(_translate("Tester", self.configLang.configuration().get('buttons', 'ToResetDistance')))
+        self.DirectoryConfirmB.setText(_translate("Tester", self.configLang.configuration().get('buttons', 'DirectoryConfirmB')))
+        self.FileConfirmButton.setText(_translate("Tester", self.configLang.configuration().get('buttons', 'FileConfirmButton')))
+        self.DataIntervalButton.setText(_translate("Tester", self.configLang.configuration().get('buttons', 'DataIntervalButton')))
+        self.DisplayPlotButton.setText(_translate("Tester", self.configLang.configuration().get('buttons', 'DisplayPlotButton')))
+        self.CloseButton.setText(_translate("Tester", self.configLang.configuration().get('buttons', 'CloseButton')))
 
-        self.lcdTextDistance.setText(_translate("Tester", self.configLang.configuration().get('global', 'lcdTextDistance')))
-        self.lcdTextPositionChange.setText(_translate("Tester", self.configLang.configuration().get('global', 'lcdTextPositionChange')))
-        self.lcdTextTimeChange.setText(_translate("Tester", self.configLang.configuration().get('global', 'lcdTextTimeChange')))
-        self.lcdTextTimeRecording.setText(_translate("Tester", self.configLang.configuration().get('global', 'lcdTextTimeRecording')))
+        #Text labels
+        self.labelRemerciements.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'labelRemerciements')))
+        self.lcdTextDistance.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'lcdTextDistance')))
+        self.lcdTextPositionChange.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'lcdTextPositionChange')))
+        self.lcdTextTimeChange.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'lcdTextTimeChange')))
+        self.lcdTextTimeRecording.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'lcdTextTimeRecording')))
+        self.urlRepo_2.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'urlRepo_2')))
+        self.urlRepo.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'urlRepo')))
 
-        self.groupBox_3.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'groupBox_3')))
-        self.groupBox_5.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'groupBox_5')))
-        self.groupBox_2.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'groupBox_2')))
-        self.RegisterEnco.setText(_translate("Tester", self.configLang.configuration().get('global', 'RegisterEnco')))
+        #Group boxes
+        self.groupBox_3.setTitle(_translate("Tester", self.configLang.configuration().get('groupBoxes', 'groupBox_3')))
+        self.groupBox_5.setTitle(_translate("Tester", self.configLang.configuration().get('groupBoxes', 'groupBox_5')))
+        self.groupBox_2.setTitle(_translate("Tester", self.configLang.configuration().get('groupBoxes', 'groupBox_2')))
+        self.RegisterEnco.setText(_translate("Tester", self.configLang.configuration().get('groupBoxes', 'RegisterEnco')))
 
-        self.CloseButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'CloseButton')))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Tester", self.configLang.configuration().get('global', 'tab')))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Tester", self.configLang.configuration().get('global', 'tab_2')))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Tester", self.configLang.configuration().get('global', 'tab_3')))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("Tester", self.configLang.configuration().get('global', 'tab_4')))
+        #tabs
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Tester", self.configLang.configuration().get('tabs', 'tab')))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Tester", self.configLang.configuration().get('tabs', 'tab_2')))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Tester", self.configLang.configuration().get('tabs', 'tab_3')))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("Tester", self.configLang.configuration().get('tabs', 'tab_4')))
 
-        self.menuAffichage.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuAffichage')))
-        self.menuCouleur.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuCouleur')))
-        self.menuAide.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuAide')))
-        self.actionRepo.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionRepo')))
-        self.action_propos.setText(_translate("Tester", self.configLang.configuration().get('global', 'action_propos')))
+        #Text boxes
+        self.textBoxDirectory.setText(_translate("Tester", self.configLang.configuration().get('textBoxes', 'textBoxDirectory')))
+        self.textBoxFile.setText(_translate("Tester", self.configLang.configuration().get('textBoxes', 'textBoxFile')))
+        self.textBoxDataInterval.setText(_translate("Tester", self.configLang.configuration().get('textBoxes', 'textBoxDataInterval')))
 
-        self.textBoxDirectory.setText(_translate("Tester", self.configLang.configuration().get('global', 'textBoxDirectory')))
-        self.textBoxFile.setText(_translate("Tester", self.configLang.configuration().get('global', 'textBoxFile')))
-        self.textBoxDataInterval.setText(_translate("Tester", self.configLang.configuration().get('global', 'textBoxDataInterval')))
+        #Menus
+        self.menuAffichage.setTitle(_translate("Tester", self.configLang.configuration().get('menus', 'menuAffichage')))
+        self.menuCouleur.setTitle(_translate("Tester", self.configLang.configuration().get('menus', 'menuCouleur')))
+        self.menuAide.setTitle(_translate("Tester", self.configLang.configuration().get('menus', 'menuAide')))
+        self.menuFont.setTitle(_translate("Tester", self.configLang.configuration().get('menus', 'menuFont')))
 
-        self.DirectoryConfirmB.setText(_translate("Tester", self.configLang.configuration().get('global', 'DirectoryConfirmB')))
-        self.FileConfirmButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'FileConfirmButton')))
-        self.DataIntervalButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'DataIntervalButton')))
-
-        self.DisplayPlotButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'DisplayPlotButton')))
-        self.urlRepo_2.setText(_translate("Tester", self.configLang.configuration().get('global', 'urlRepo_2')))
-        self.urlRepo.setText(_translate("Tester", self.configLang.configuration().get('global', 'urlRepo')))
-
-        self.actionStyle.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionStyle')))
-        self.actionStyleDefault.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionStyleDefault')))
-        self.actionPaletteBackground.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionPaletteBackground')))
-        self.actionPaletteText.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionPaletteText')))
-        self.actionMode_clair.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionMode_clair')))
-        self.actionMode_sombre.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionMode_sombre')))
-        self.actionFR.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionFR')))
-        self.actionENG.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionENG')))
-        self.menuFont.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuFont')))
-
+        #Actions
+        self.actionStyle.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionStyle')))
+        self.actionStyleDefault.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionStyleDefault')))
+        self.actionPaletteBackground.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionPaletteBackground')))
+        self.actionPaletteText.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionPaletteText')))
+        self.actionMode_clair.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionMode_clair')))
+        self.actionMode_sombre.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionMode_sombre')))
+        self.actionFR.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionFR')))
+        self.actionENG.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionENG')))
+        self.actionRepo.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionRepo')))
+        self.action_propos.setText(_translate("Tester", self.configLang.configuration().get('actions', 'action_propos')))
 
 
 
