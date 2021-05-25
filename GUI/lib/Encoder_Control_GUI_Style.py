@@ -24,12 +24,13 @@ from MplCanvas import MplCanvas
 class Ui_Style(Ui_Tester):
 
     def __init__(self):
+        self.menuBar = QtWidgets.QMenuBar(Tester)
+        self.menuAffichage = QtWidgets.QMenu(self.menuBar)
+        self.menuFont = QtWidgets.QMenu(self.menuAffichage)
         self.actionStyle = QtWidgets.QAction(Tester)
         self.actionStyleDefault = QtWidgets.QAction(Tester)
         self.actionPaletteText = QtWidgets.QAction(Tester)
         self.labelRemerciements = QtWidgets.QLabel("Remerciements:")
-
-
         self.actionPaletteBackground = QtWidgets.QAction(Tester)
 
 
@@ -305,7 +306,6 @@ class Ui_Style(Ui_Tester):
         self.menuCouleur.addAction(self.actionMode_clair)
         self.menuCouleur.addAction(self.actionMode_sombre)
 
-        self.menuFont = QtWidgets.QMenu(self.menuAffichage)
         self.menuFont.setObjectName("menuFont")
         self.menuAffichage.addMenu(self.menuFont)
         self.menuFont.addAction(self.actionStyle)
@@ -326,7 +326,7 @@ class Ui_Style(Ui_Tester):
         QtCore.QMetaObject.connectSlotsByName(Tester)
 
 
-        self.actionMode_clair.triggered.connect(self.modeClair) 
+        self.actionMode_clair.triggered.connect(self.modeClair)
         self.actionMode_sombre.triggered.connect(self.modeSombre)
 
         self.actionStyle.triggered.connect(self.dialogStyle)
@@ -360,10 +360,10 @@ class Ui_Style(Ui_Tester):
         self.RegisterEnco.setText(_translate("Tester", self.configLang.configuration().get('global', 'RegisterEnco')))
 
         self.CloseButton.setText(_translate("Tester", self.configLang.configuration().get('global', 'CloseButton')))
-        #self.tab.setWindowIconText(_translate("Tester", self.configLang.configuration().get('global', 'tab')))
-        #self.tab_2.setWindowIconText(_translate("Tester", self.configLang.configuration().get('global', 'tab_2')))
-        #self.tab_3.setWindowIconText(_translate("Tester", self.configLang.configuration().get('global', 'tab_3')))
-        #self.tab_4.setWindowIconText(_translate("Tester", self.configLang.configuration().get('global', 'tab_4')))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Tester", self.configLang.configuration().get('global', 'tab')))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Tester", self.configLang.configuration().get('global', 'tab_2')))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Tester", self.configLang.configuration().get('global', 'tab_3')))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("Tester", self.configLang.configuration().get('global', 'tab_4')))
 
         self.menuAffichage.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuAffichage')))
         self.menuCouleur.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuCouleur')))
@@ -391,7 +391,7 @@ class Ui_Style(Ui_Tester):
         self.actionMode_sombre.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionMode_sombre')))
         self.actionFR.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionFR')))
         self.actionENG.setText(_translate("Tester", self.configLang.configuration().get('global', 'actionENG')))
-        #self.menuFont.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuFont')))
+        self.menuFont.setTitle(_translate("Tester", self.configLang.configuration().get('global', 'menuFont')))
 
 
 
