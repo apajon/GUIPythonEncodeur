@@ -13,10 +13,9 @@
 # inspiré de https://stackoverflow.com/questions/60563477/pyqt5-tabwidget-tab-bar-blank-area-background-color
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from Encoder_Control_GUI_ONLY import Ui_Tester
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-import random
+
+from Encoder_Control_GUI_ONLY import Ui_Tester
 
 import configFile
 from MplCanvas import MplCanvas
@@ -208,14 +207,26 @@ class Ui_Style(Ui_Tester):
             repoAdress = 'https://github.com/WilliamBonilla62/GUIPythonEncodeur/'
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(repoAdress))
 
-    def afficherGraphique(self):
-        self.sc = MplCanvas(self, width=5, height=4, dpi=100)
-        self.sc.axes.plot([0, 1, 2, 3, 4, 5, 6, 7],
+    def PlotData(self):
+        self.graphic.figure.clf()
+        self.graphic.axes = self.graphic.figure.add_subplot(111)
+        self.graphic.axes2 = self.graphic.axes.twinx()
+
+        self.updateGraphique()
+
+        self.graphic.draw()
+
+    def updateGraphique(self):
+        import random
+        self.graphic.axes.plot([0, 1, 2, 3, 4, 5, 6, 7],
                           [random.random(), random.random(), random.random(), random.random(), random.random(),
                            random.random(), random.random(), random.random()])
-        self.gridLayout_5.addWidget(self.sc, 0, 0, 1, 1)
-        self.gridLayout_9.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
+        
+        self.graphic.axes2.plot([0, 1, 2, 3, 4, 5, 6, 7],
+                          [random.random(), random.random(), random.random(), random.random(), random.random(),
+                           random.random(), random.random(), random.random()],color='tab:red')
+        
     def setupUi(self, Tester):
         super().setupUi(Tester)
 
@@ -292,8 +303,12 @@ class Ui_Style(Ui_Tester):
         self.menuBar.addAction(self.menuAffichage.menuAction())
         self.menuBar.addAction(self.menuAide.menuAction())
 
+        self.graphic = MplCanvas(self, width=5, height=4, dpi=100)
+        self.gridLayout_5.addWidget(self.graphic, 0, 0, 1, 1)
+        self.gridLayout_9.addLayout(self.gridLayout_5, 0, 0, 1, 1)
+
         self.retranslateUi2(Tester)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(Tester)
 
 
@@ -304,7 +319,7 @@ class Ui_Style(Ui_Tester):
         self.actionStyleDefault.triggered.connect(self.styleDefault)
         self.action_propos.triggered.connect(self.indexPropos)
         self.actionRepo.triggered.connect(self.openRepo)
-        self.DisplayPlotButton.clicked.connect(self.afficherGraphique)
+        self.DisplayPlotButton.clicked.connect(self.PlotData)
         self.actionPaletteBackground.triggered.connect(self.choixCouleurBackground)
         self.actionPaletteText.triggered.connect(self.choixCouleurText)
 
@@ -313,7 +328,9 @@ class Ui_Style(Ui_Tester):
         super().retranslateUi(Tester)
         _translate = QtCore.QCoreApplication.translate
 
-        self.labelRemerciements.setText(_translate("Tester", "Remerciements:"))
+        # self.labelRemerciements.setText(_translate("Tester", "Remerciements:"))
+        self.labelRemerciements.setText(_translate("Tester", "Remerciements"))
+
 
 
 if __name__ == "__main__":

@@ -10,23 +10,27 @@
 # -------------------------------------------------------------------------
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-from lib.Encoder_Control_GUI_ONLY import Ui_Tester
 
 import time
 import sys
 
 import os
 
+
+# from lib.Encoder_Control_GUI_ONLY import Ui_Tester
+from lib.Encoder_Control_GUI_Style import Ui_Style
+
 # import configparser as ConfigParser  # Python 3
 from lib import configFile
 from lib import saveData
-from lib.plotData import PlotData
+from lib.plotData import PlotDataUpdateFigure,PlotData
 from lib.MplCanvas import MplCanvas
 
 from api_phidget_n_MQTT.src.lib_api_phidget22 import phidget22Handler as handler
 from api_phidget_n_MQTT.src.lib_global_python import MQTT_client
 
-class Ui_Encoder(Ui_Tester):
+# class Ui_Encoder(Ui_Tester):
+class Ui_Encoder(Ui_Style):
     def setupUi(self, Tester):
         super().setupUi(Tester)
 
@@ -95,10 +99,6 @@ class Ui_Encoder(Ui_Tester):
         self.ToDisconnectButton.clicked.connect(self.DisconnectEnco)
         self.DataIntervalButton.clicked.connect(self.SetDataInterval)
         self.ToResetDistance.clicked.connect(self.ResetDistance)
-
-        self.actionStyle.triggered.connect(self.dialogStyle)
-        self.actionStyleDefault.triggered.connect(self.styleDefault)
-
         pass
 
         
@@ -220,9 +220,10 @@ class Ui_Encoder(Ui_Tester):
         self.config.SetDataInterval(self.DataIntervalSpinBox.value())
         self.updateStatusBar()
 
-    def PlotData(self):
-        if not PlotData(self.config.configuration()):
-            self.FailedFile()
+    def updateGraphique(self):
+        PlotDataUpdateFigure(self.config.configuration(),self.graphic.axes,self.graphic.axes2)
+        pass
+        
 
     def Savedata(self):
         try:
@@ -279,6 +280,9 @@ class Ui_Encoder(Ui_Tester):
         else:
             pass
 
+    def PlotData(self):
+        super().PlotData()
+
     def ResetDistance(self):
         self.encoderWthMQTT.ResetDistance()
 
@@ -287,7 +291,6 @@ class Ui_Encoder(Ui_Tester):
             return True
         else:
             return False
-
     
 
     # Adds all the title to the object on the GUI
