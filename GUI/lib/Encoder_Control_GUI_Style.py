@@ -23,17 +23,6 @@ from MplCanvas import MplCanvas
 
 class Ui_Style(Ui_Tester):
 
-    def __init__(self):
-        self.menuBar = QtWidgets.QMenuBar(Tester)
-        self.menuAffichage = QtWidgets.QMenu(self.menuBar)
-        self.menuFont = QtWidgets.QMenu(self.menuAffichage)
-        self.actionStyle = QtWidgets.QAction(Tester)
-        self.actionStyleDefault = QtWidgets.QAction(Tester)
-        self.actionPaletteText = QtWidgets.QAction(Tester)
-        self.labelRemerciements = QtWidgets.QLabel("Remerciements:")
-        self.actionPaletteBackground = QtWidgets.QAction(Tester)
-
-
     def dialogStyle(self):
         styleFont, choix = QtWidgets.QFontDialog.getFont()
         if choix:
@@ -98,7 +87,11 @@ class Ui_Style(Ui_Tester):
         self.checkOneColorMode("actionMode_clair")
 
     def choixCouleurBackground(self):
-        color,choix = QtWidgets.QColorDialog.getColor().name()
+        Qcolor = QtWidgets.QColorDialog.getColor()
+        if not Qcolor.isValid():
+            return
+        color=Qcolor.name()
+
         self.colorBackground = color
 
         self.colorTabWidget = color
@@ -114,7 +107,10 @@ class Ui_Style(Ui_Tester):
         self.uncheckColorModeAll()
 
     def choixCouleurText(self):
-        self.colorText = QtWidgets.QColorDialog.getColor()
+        QcolorText = QtWidgets.QColorDialog.getColor()
+        if not QcolorText.isValid():
+            return
+        self.colorText = QcolorText
         self.updateColorTester()
         self.updateColorTabText()
         self.uncheckColorModeAll()
@@ -245,26 +241,22 @@ class Ui_Style(Ui_Tester):
 
         # configLang
         langFR = 'lang/FR.cfg'
-        self.configLangFR = configFile.configFile(configFilename=langFR)
+        self.configLangFR = configFile.configFile(configFilename=langFR, encoding = "utf-8")
 
         langENG = 'lang/ENG.cfg'
-        self.configLangENG = configFile.configFile(configFilename=langENG)
+        self.configLangENG = configFile.configFile(configFilename=langENG, encoding = "utf-8")
 
         self.configLang = self.configLangFR  # seulement pour intialiser la variable
 
-        langDefault = 'lang/Default.cfg'
-        self.configLangDefault = configFile.configFile(configFilename=langDefault)
-        self.paramLangDefault = self.configLangDefault.configuration().get('langDefault', 'lastChosen')
-        eval('self.' + self.paramLangDefault + '()')
-
 
         self.colorBackground = ""
-        self.colorText = ""
+        self.colorText = QtGui.QColor.fromRgb(0,0,0)
         self.colorTabWidget = ""
         self.colorButton = ""
         self.colorMenuBar = ""
         self.styleFont = QtGui.QFont("shelldlg2", 8)
 
+        self.labelRemerciements = QtWidgets.QLabel ( "Remerciements:" )
         self.verticalLayout_5.addWidget(self.labelRemerciements)
         self.Liste = QtWidgets.QListWidget()
         self.Liste.insertItem(0, "Adrien Pajon")
@@ -272,21 +264,25 @@ class Ui_Style(Ui_Tester):
         self.Liste.insertItem(2, "William Ricardo Bonilla Villatero")
         self.verticalLayout_5.addWidget(self.Liste)
 
+        self.actionStyle = QtWidgets.QAction ( Tester )
         self.actionStyle.setCheckable(False)
         self.actionStyle.setObjectName("actionStyle")
         self.actionStyle.setShortcut("CTRL+M")
         self.actionStyle.setText("Modifier le style")
 
+        self.actionStyleDefault = QtWidgets.QAction ( Tester )
         self.actionStyleDefault.setCheckable(False)
         self.actionStyleDefault.setObjectName("actionStyleDefault")
         self.actionStyleDefault.setShortcut("CTRL+D")
         self.actionStyleDefault.setText("Style par défaut")
 
+        self.actionPaletteBackground = QtWidgets.QAction ( Tester )
         self.actionPaletteBackground.setCheckable(False)
         self.actionPaletteBackground.setObjectName("actionPaletteBackground")
         self.actionPaletteBackground.setShortcut("CTRL+P")
         self.actionPaletteBackground.setText("Palette de couleurs arrière plan")
 
+        self.actionPaletteText = QtWidgets.QAction ( Tester )
         self.actionPaletteText.setCheckable(False)
         self.actionPaletteText.setObjectName("actionPaletteText")
         self.actionPaletteText.setShortcut("CTRL+Q")
@@ -296,15 +292,16 @@ class Ui_Style(Ui_Tester):
 
         self.actionMode_sombre.setShortcut("CTRL+S")
 
-        self.actionFR.setIcon(QtGui.QIcon('lib/images/drapeauFrance.png'))
+        self.actionFR.setIcon(QtGui.QIcon('images/drapeauFrance.png'))
         self.actionFR.setShortcut("CTRL+F")
 
-        self.actionENG.setIcon(QtGui.QIcon('lib/images/drapeauGB.jpg'))
+        self.actionENG.setIcon(QtGui.QIcon('images/drapeauGB.jpg'))
         self.actionENG.setShortcut("CTRL+E")
 
         self.menuCouleur.addAction(self.actionMode_clair)
         self.menuCouleur.addAction(self.actionMode_sombre)
 
+        self.menuFont = QtWidgets.QMenu ( self.menuAffichage )
         self.menuFont.setObjectName("menuFont")
         self.menuAffichage.addMenu(self.menuFont)
         self.menuFont.addAction(self.actionStyle)
@@ -339,8 +336,13 @@ class Ui_Style(Ui_Tester):
         self.actionENG.triggered.connect(self.ENG)
         self.actionFR.triggered.connect(self.FR)
 
+        langDefault = 'lang/Default.cfg'
+        self.configLangDefault = configFile.configFile ( configFilename=langDefault , encoding = "utf-8")
+        self.paramLangDefault = self.configLangDefault.configuration ().get ( 'langDefault', 'lastChosen' )
+        eval ( 'self.' + self.paramLangDefault + '()' )
+
     def retranslateUi2(self, Tester):
-        super().retranslateUi(Tester)
+        #super().retranslateUi(Tester)
         _translate = QtCore.QCoreApplication.translate
 
         #Buttons
@@ -396,6 +398,7 @@ class Ui_Style(Ui_Tester):
         self.actionENG.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionENG')))
         self.actionRepo.setText(_translate("Tester", self.configLang.configuration().get('actions', 'actionRepo')))
         self.action_propos.setText(_translate("Tester", self.configLang.configuration().get('actions', 'action_propos')))
+
 
 
 

@@ -8,6 +8,11 @@ class configFile:
         else:
             self.configFilename = kwargs.get("configFilename")
 
+        if not kwargs.get("encoding"):
+            self.encoding=None
+        else:
+            self.encoding = kwargs.get("encoding")
+
         self.config = ConfigParser.ConfigParser()
 
         self.read()
@@ -17,7 +22,7 @@ class configFile:
 
     def read(self):
         print(f"reading configuration file : {self.configFilename}")
-        self.config.read(self.configFilename)
+        self.config.read(self.configFilename,encoding = self.encoding)
 
     def changeConfig(self, section, option, value):
         self.config.set(section, option, value)
