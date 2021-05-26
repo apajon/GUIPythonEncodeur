@@ -13,13 +13,14 @@
 # inspiré de https://stackoverflow.com/questions/60563477/pyqt5-tabwidget-tab-bar-blank-area-background-color
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from Encoder_Control_GUI_ONLY import Ui_Tester
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-import random
+
+from Encoder_Control_GUI_ONLY import Ui_Tester
 
 import configFile
 from MplCanvas import MplCanvas
+
+import os
 
 class Ui_Style(Ui_Tester):
 
@@ -214,40 +215,45 @@ class Ui_Style(Ui_Tester):
             repoAdress = 'https://github.com/WilliamBonilla62/GUIPythonEncodeur/'
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(repoAdress))
 
-    def afficherGraphique(self):
-        self.sc = MplCanvas(self, width=5, height=4, dpi=100)
-        self.sc.axes.plot([0, 1, 2, 3, 4, 5, 6, 7],
+    def PlotData(self):
+        self.graphic.figure.clf()
+        self.graphic.axes = self.graphic.figure.add_subplot(111)
+        self.graphic.axes2 = self.graphic.axes.twinx()
+
+        self.updateGraphique()
+
+        self.graphic.draw()
+
+    def updateGraphique(self):
+        import random
+        self.graphic.axes.plot([0, 1, 2, 3, 4, 5, 6, 7],
                           [random.random(), random.random(), random.random(), random.random(), random.random(),
                            random.random(), random.random(), random.random()])
-        self.gridLayout_5.addWidget(self.sc, 0, 0, 1, 1)
-        self.gridLayout_9.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
-    def FR(self):
-        self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'FR')
-        self.configLang = self.configLangFR
-        self.retranslateUi2(Tester)
+        self.graphic.axes2.plot([0, 1, 2, 3, 4, 5, 6, 7],
+                    [random.random(), random.random(), random.random(), random.random(), random.random(),
+                    random.random(), random.random(), random.random()],color='tab:red')
+
+    # def FR(self):
+    #     self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'FR')
+    #     abspath = os.path.dirname(__file__)
+    #     langFR = os.path.join(abspath,'lang/FR.cfg')
+    #     self.configLang = configFile.configFile(configFilename=langFR, encoding = "utf-8")
+    #     self.retranslateUi2(Tester)
 
     def ENG(self):
         self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'ENG')
-        self.configLang = self.configLangENG
+        abspath = os.path.dirname(__file__)
+        langENG = os.path.join(abspath,'lang/ENG.cfg')
+        self.configLang = configFile.configFile(configFilename=langENG, encoding = "utf-8")
         self.retranslateUi2(Tester)
 
     def setupUi(self, Tester):
         super().setupUi(Tester)
 
         # import config file could depending on the name of the config file
-        file = 'config.cfg'
-        self.config = configFile.configFile(configFilename=file)
-
-        # configLang
-        langFR = 'lang/FR.cfg'
-        self.configLangFR = configFile.configFile(configFilename=langFR, encoding = "utf-8")
-
-        langENG = 'lang/ENG.cfg'
-        self.configLangENG = configFile.configFile(configFilename=langENG, encoding = "utf-8")
-
-        self.configLang = self.configLangFR  # seulement pour intialiser la variable
-
+        # file = '../config.cfg'
+        # self.config = configFile.configFile(configFilename=file)
 
         self.colorBackground = ""
         self.colorText = QtGui.QColor.fromRgb(0,0,0)
@@ -292,10 +298,14 @@ class Ui_Style(Ui_Tester):
 
         self.actionMode_sombre.setShortcut("CTRL+S")
 
-        self.actionFR.setIcon(QtGui.QIcon('images/drapeauFrance.png'))
+        abspath = os.path.dirname(__file__)
+        iconFR = os.path.join(abspath,'images/drapeauFrance.png')
+        self.actionFR.setIcon(QtGui.QIcon(iconFR))
         self.actionFR.setShortcut("CTRL+F")
 
-        self.actionENG.setIcon(QtGui.QIcon('images/drapeauGB.jpg'))
+        abspath = os.path.dirname(__file__)
+        iconENG = os.path.join(abspath,'images/drapeauGB.jpg')
+        self.actionENG.setIcon(QtGui.QIcon(iconENG))
         self.actionENG.setShortcut("CTRL+E")
 
         self.menuCouleur.addAction(self.actionMode_clair)
@@ -317,10 +327,13 @@ class Ui_Style(Ui_Tester):
         self.menuBar.addAction(self.menuAffichage.menuAction())
         self.menuBar.addAction(self.menuAide.menuAction())
 
-        self.retranslateUi2(Tester)
-        self.tabWidget.setCurrentIndex(3)
-        QtCore.QMetaObject.connectSlotsByName(Tester)
+        self.graphic = MplCanvas(self, width=5, height=4, dpi=100)
+        self.gridLayout_5.addWidget(self.graphic, 0, 0, 1, 1)
+        self.gridLayout_9.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
+        # self.retranslateUi2(Tester)
+        self.tabWidget.setCurrentIndex(2)
+        QtCore.QMetaObject.connectSlotsByName(Tester)
 
         self.actionMode_clair.triggered.connect(self.modeClair)
         self.actionMode_sombre.triggered.connect(self.modeSombre)
@@ -329,20 +342,30 @@ class Ui_Style(Ui_Tester):
         self.actionStyleDefault.triggered.connect(self.styleDefault)
         self.action_propos.triggered.connect(self.indexPropos)
         self.actionRepo.triggered.connect(self.openRepo)
-        self.DisplayPlotButton.clicked.connect(self.afficherGraphique)
+        self.DisplayPlotButton.clicked.connect(self.PlotData)
         self.actionPaletteBackground.triggered.connect(self.choixCouleurBackground)
         self.actionPaletteText.triggered.connect(self.choixCouleurText)
 
         self.actionENG.triggered.connect(self.ENG)
         self.actionFR.triggered.connect(self.FR)
 
-        langDefault = 'lang/Default.cfg'
+        abspath = os.path.dirname(__file__)
+        langDefault = os.path.join(abspath,'lang/Default.cfg')
         self.configLangDefault = configFile.configFile ( configFilename=langDefault , encoding = "utf-8")
         self.paramLangDefault = self.configLangDefault.configuration ().get ( 'langDefault', 'lastChosen' )
-        eval ( 'self.' + self.paramLangDefault + '()' )
+        self.FR()
+        getattr(self, self.paramLangDefault)()
+        # eval ( 'self.' + self.paramLangDefault + '()' )
 
-    def retranslateUi2(self, Tester):
-        #super().retranslateUi(Tester)
+    def FR(self):
+        self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'FR')
+        abspath = os.path.dirname(__file__)
+        langFR = os.path.join(abspath,'lang/FR.cfg')
+        self.configLang = configFile.configFile(configFilename=langFR, encoding = "utf-8")
+        self.retranslateUi2()
+
+
+    def retranslateUi2(self):
         _translate = QtCore.QCoreApplication.translate
 
         #Buttons
@@ -402,9 +425,8 @@ class Ui_Style(Ui_Tester):
 
 
 
-
-
 if __name__ == "__main__":
+
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
