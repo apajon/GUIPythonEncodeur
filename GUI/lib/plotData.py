@@ -150,17 +150,17 @@ def PlotDataUpdateFigure(config,ax1,ax2):
     # Draw a grey rectangle patch for each detach of the encoder aka 'missing values' aka TimeChange=0
     for k in np.argwhere(data['TimeChange'] == 0):
         if k == 0:
-            rect = patches.Rectangle((time[k], 0), time[k + 1] - time[k], 2, linewidth=1, edgecolor='k',
+            rect = patches.Rectangle((time[k], 0), time[k + 1] - time[k], np.max(vel), linewidth=1, edgecolor='k',
                                      facecolor='tab:grey')
             ax1.add_patch(rect)
             lns3 = rect
         elif k != len(data['TimeChange']):
             if k == np.argwhere(data['TimeChange'] == 0)[0]:
-                rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], 2, linewidth=1, edgecolor='k',
+                rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], np.max(vel), linewidth=1, edgecolor='k',
                                          facecolor='tab:grey')
                 lns3 = ax1.add_patch(rect)
             else:
-                rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], 2, linewidth=1, edgecolor='k',
+                rect = patches.Rectangle((time[k - 1], 0), time[k + 1] - time[k - 1], np.max(vel), linewidth=1, edgecolor='k',
                                          facecolor='tab:grey')
                 ax1.add_patch(rect)
 

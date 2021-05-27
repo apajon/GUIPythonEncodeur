@@ -234,26 +234,15 @@ class Ui_Style(Ui_Tester):
                     [random.random(), random.random(), random.random(), random.random(), random.random(),
                     random.random(), random.random(), random.random()],color='tab:red')
 
-    # def FR(self):
-    #     self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'FR')
-    #     abspath = os.path.dirname(__file__)
-    #     langFR = os.path.join(abspath,'lang/FR.cfg')
-    #     self.configLang = configFile.configFile(configFilename=langFR, encoding = "utf-8")
-    #     self.retranslateUi2(Tester)
 
-    def ENG(self):
-        self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'ENG')
-        abspath = os.path.dirname(__file__)
-        langENG = os.path.join(abspath,'lang/ENG.cfg')
-        self.configLang = configFile.configFile(configFilename=langENG, encoding = "utf-8")
-        self.retranslateUi2(Tester)
+    def updateRemerciement(self):
+        self.Liste.insertItem(0, "Adrien Pajon")
+        self.Liste.insertItem(1, "Raymond-Pierre Bouchard")
+        self.Liste.insertItem(2, "William Ricardo Bonilla Villatero")
+
 
     def setupUi(self, Tester):
         super().setupUi(Tester)
-
-        # import config file could depending on the name of the config file
-        # file = '../config.cfg'
-        # self.config = configFile.configFile(configFilename=file)
 
         self.colorBackground = ""
         self.colorText = QtGui.QColor.fromRgb(0,0,0)
@@ -265,9 +254,7 @@ class Ui_Style(Ui_Tester):
         self.labelRemerciements = QtWidgets.QLabel ( "Remerciements:" )
         self.verticalLayout_5.addWidget(self.labelRemerciements)
         self.Liste = QtWidgets.QListWidget()
-        self.Liste.insertItem(0, "Adrien Pajon")
-        self.Liste.insertItem(1, "Raymond-Pierre Bouchard")
-        self.Liste.insertItem(2, "William Ricardo Bonilla Villatero")
+        self.updateRemerciement()
         self.verticalLayout_5.addWidget(self.Liste)
 
         self.actionStyle = QtWidgets.QAction ( Tester )
@@ -332,7 +319,7 @@ class Ui_Style(Ui_Tester):
         self.gridLayout_9.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
         # self.retranslateUi2(Tester)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(Tester)
 
         self.actionMode_clair.triggered.connect(self.modeClair)
@@ -353,7 +340,6 @@ class Ui_Style(Ui_Tester):
         langDefault = os.path.join(abspath,'lang/Default.cfg')
         self.configLangDefault = configFile.configFile ( configFilename=langDefault , encoding = "utf-8")
         self.paramLangDefault = self.configLangDefault.configuration ().get ( 'langDefault', 'lastChosen' )
-        self.FR()
         getattr(self, self.paramLangDefault)()
         # eval ( 'self.' + self.paramLangDefault + '()' )
 
@@ -362,6 +348,13 @@ class Ui_Style(Ui_Tester):
         abspath = os.path.dirname(__file__)
         langFR = os.path.join(abspath,'lang/FR.cfg')
         self.configLang = configFile.configFile(configFilename=langFR, encoding = "utf-8")
+        self.retranslateUi2()
+
+    def ENG(self):
+        self.configLangDefault.changeConfig('langDefault', 'lastChosen', 'ENG')
+        abspath = os.path.dirname(__file__)
+        langENG = os.path.join(abspath,'lang/ENG.cfg')
+        self.configLang = configFile.configFile(configFilename=langENG, encoding = "utf-8")
         self.retranslateUi2()
 
 
@@ -385,7 +378,13 @@ class Ui_Style(Ui_Tester):
         self.lcdTextTimeChange.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'lcdTextTimeChange')))
         self.lcdTextTimeRecording.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'lcdTextTimeRecording')))
         self.urlRepo_2.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'urlRepo_2')))
-        self.urlRepo.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'urlRepo')))
+        try:
+            repoAdress=self.config.configuration().get('REPO','GitHub')
+        except:
+            repoAdress='https://github.com/WilliamBonilla62/GUIPythonEncodeur/'
+        hrefRepoAdress=f'<a href="{repoAdress}">{repoAdress}</a>'
+        self.urlRepo.setText(_translate("Tester",hrefRepoAdress))
+        # self.urlRepo.setText(_translate("Tester", self.configLang.configuration().get('textLabels', 'urlRepo')))
 
         #Group boxes
         self.groupBox_3.setTitle(_translate("Tester", self.configLang.configuration().get('groupBoxes', 'groupBox_3')))

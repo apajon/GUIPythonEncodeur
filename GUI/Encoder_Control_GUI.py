@@ -8,7 +8,7 @@
 # Before starting to update the software please read the Readme file.
 # ********************************************************************
 # -------------------------------------------------------------------------
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 
 import time
@@ -39,7 +39,7 @@ class Ui_Encoder(Ui_Style):
         file = 'config.cfg'
         self.config = configFile.configFile(configFilename=file)
 
-        self.retranslateUiNew(Tester,self.config.configuration())
+        self.retranslateUiNew(Tester)
         QtCore.QMetaObject.connectSlotsByName(Tester)
         # Ends of the GUI Widget init------------------------------------------------------------------------------------------
 
@@ -118,9 +118,9 @@ class Ui_Encoder(Ui_Style):
         msg_length=30
 
         if len(self.statusFile)>msg_length or len(self.statusFolder)>msg_length:
-            self.statusBar.showMessage("Data interval : "+self.statusDataInterval+"ms"+" | "
-                                        +"file : "+self.statusFile[self.satusBarCount[0]:msg_length+self.satusBarCount[0]]+" | "
-                                        +"folder : "+self.statusFolder[self.satusBarCount[1]:msg_length+self.satusBarCount[1]])
+            self.statusBar.showMessage(self.configLang.configuration().get("statusBar","dataInterval")+" : "+self.statusDataInterval+"ms"+" | "
+                                        +self.configLang.configuration().get("statusBar","file")+" : "+self.statusFile[self.satusBarCount[0]:msg_length+self.satusBarCount[0]]+" | "
+                                        +self.configLang.configuration().get("statusBar","folder")+" : "+self.statusFolder[self.satusBarCount[1]:msg_length+self.satusBarCount[1]])
             self.satusBarCount[0]+=1
             self.satusBarCount[1]+=1
             
@@ -129,9 +129,9 @@ class Ui_Encoder(Ui_Style):
             if self.satusBarCount[1]+msg_length-10 >= len(self.statusFolder):
                 self.satusBarCount[1] = 0
         else:
-            self.statusBar.showMessage("Data interval : "+self.statusDataInterval+"ms"+" | "
-                                        +"file : "+self.statusFile[self.satusBarCount[0]:msg_length+self.satusBarCount[0]]+" | "
-                                        +"folder : "+self.statusFolder[self.satusBarCount[1]:msg_length+self.satusBarCount[1]])
+            self.statusBar.showMessage(self.configLang.configuration().get("statusBar","dataInterval")+" : "+self.statusDataInterval+"ms"+" | "
+                                        +self.configLang.configuration().get("statusBar","file")+" : "+self.statusFile[self.satusBarCount[0]:msg_length+self.satusBarCount[0]]+" | "
+                                        +self.configLang.configuration().get("statusBar","folder")+" : "+self.statusFolder[self.satusBarCount[1]:msg_length+self.satusBarCount[1]])
 
     def centerOnScreen(self):
         qtRectangle = self.frameGeometry()
@@ -290,36 +290,136 @@ class Ui_Encoder(Ui_Style):
             return True
         else:
             return False
+
+    def updateColorTester(self):
+        Tester.setStyleSheet("background-color:" + self.colorBackground + ";")
+
+        if type(self.colorText)==type(QtGui.QColor()):
+            self.centralwidget.setStyleSheet("color:" + self.colorText.name()+";"+
+            "font-size:"+str(self.styleFont.pointSize())+"pt"+";"+
+             "font-family:"+ self.styleFont.family()+";")
+
+    def dialogStyle(self):
+        styleFont, choix = QtWidgets.QFontDialog.getFont()
+        if choix:
+            self.styleFont = styleFont
+        else:
+            return
+
+        if not type(self.colorText)==type(QtGui.QColor()):
+            Tester.setFont(self.styleFont)
+        else:
+            self.updateColorTester()
+
+    def styleDefault(self):
+        self.styleFont = QtGui.QFont("shelldlg2", 8)
+        if not type(self.colorText)==type(QtGui.QColor()):
+            Tester.setFont(self.styleFont)
+        else:
+            self.updateColorTester()
     
+    def updateRemerciement(self):
+        # Using readlines()
+        file1 = open('thanks.txt', 'r')
+        Lines = file1.readlines()
+
+        #
+        class CustomQWidget(QtWidgets.QWidget):
+            def __init__(self, parent=None, Name=None, webAdress=None, github=None):
+                super(CustomQWidget, self).__init__(parent)
+
+                layout = QtWidgets.QHBoxLayout()
+
+                if Name:
+                    label1 = QtWidgets.QLabel(Name)
+                    
+                    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+                    sizePolicy.setHorizontalStretch(0)
+                    sizePolicy.setVerticalStretch(0)
+                    sizePolicy.setHeightForWidth(label1.sizePolicy().hasHeightForWidth())
+                    label1.setSizePolicy(sizePolicy)
+
+                    layout.addWidget(label1)
+                    
+                if webAdress:
+                    # repoAdress='http://www.stackoverflow.com/'
+                    hrefWebAdress=f'<a href="{webAdress}">{webAdress}</a>'
+
+                    urlLabel = QtWidgets.QLabel(hrefWebAdress)
+                    urlLabel.setOpenExternalLinks(True)
+
+                    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+                    sizePolicy.setHorizontalStretch(0)
+                    sizePolicy.setVerticalStretch(0)
+                    sizePolicy.setHeightForWidth(urlLabel.sizePolicy().hasHeightForWidth())
+                    urlLabel.setSizePolicy(sizePolicy)
+
+                    layout.addWidget(urlLabel)
+
+                if github:
+                    hrefAdressGithub=f'github: <a href="https://github.com/{github}">{github}</a>'
+                    githubLabel = QtWidgets.QLabel(hrefAdressGithub)
+                    githubLabel.setOpenExternalLinks(True)
+
+                    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+                    sizePolicy.setHorizontalStretch(0)
+                    sizePolicy.setVerticalStretch(0)
+                    sizePolicy.setHeightForWidth(githubLabel.sizePolicy().hasHeightForWidth())
+                    githubLabel.setSizePolicy(sizePolicy)
+
+                    layout.addWidget(githubLabel)
+
+                label3 = QtWidgets.QLabel("")
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(label3.sizePolicy().hasHeightForWidth())
+                label3.setSizePolicy(sizePolicy)
+                layout.addWidget(label3)
+
+                self.setLayout(layout)
+
+            def addToList(self,liste):
+                item = QtWidgets.QListWidgetItem(liste)
+                item.setSizeHint(item_widget.sizeHint())
+                liste.addItem(item)
+                liste.setItemWidget(item, self)
+
+        # item_widget = CustomQWidget(text1="toto",repoAdress=True,text2="tata")
+        # item_widget.addToList(self.Liste)
+
+        # self.Liste.addItem("string displayed as string")
+
+        # item_widget = CustomQWidget(repoAdress=True)
+        # item_widget.addToList(self.Liste)
+        
+        head = 5
+        count = 0
+        # Strips the newline character
+        for line in Lines[head:]:
+            count += 1
+            print("Line{}: {}".format(count, line.strip()))
+            line_split=line.split("\n")
+            line_split=line_split[0].split("; ")
+            if len(line_split)==1:
+                item_widget = CustomQWidget(Name=line_split[0])
+                item_widget.addToList(self.Liste)
+            elif len(line_split)==2:
+                item_widget = CustomQWidget(Name=line_split[0],webAdress=line_split[1])
+                item_widget.addToList(self.Liste)
+            elif len(line_split)==3:
+                item_widget = CustomQWidget(Name=line_split[0],webAdress=line_split[1],github=line_split[2])
+                item_widget.addToList(self.Liste)
+        pass
+
 
     # Adds all the title to the object on the GUI
     # For renaming the objects you do it instead of going trough QT
-
-    def retranslateUiNew(self, Tester, config):
+    def retranslateUiNew(self, Tester):
         _translate = QtCore.QCoreApplication.translate
-        # Tester.setWindowTitle(_translate("Tester", "Interface de contrôle"))
-        # self.groupBox_2.setTitle(_translate("Tester", "Encoder"))
-        # self.RegisterEnco.setText(_translate("Tester", "Enregistrement"))
-        # self.groupBox_5.setTitle(_translate("Tester", "Connectivité"))
-        # self.ToConnectButton.setText(_translate("Tester", "Connexion"))
-        # self.ToDisconnectButton.setText(_translate("Tester", "Déconnexion"))
-        # self.DisplayPlotButton.setText(_translate("Tester", "Graphique"))
-        # self.DisplayData_2.setText(_translate("Tester", "Reset distance"))
-        # self.textBoxDirectory.setText(_translate("Tester", "Dossier"))
-        # self.DirectoryConfirmB.setText(_translate("Tester", "Confirmer"))
-        # self.textBoxFile.setText(_translate("Tester", "Fichier"))
-        # self.FileConfirmButton.setText(_translate("Tester", "Confirmer"))
-        # self.textBoxDataInterval.setText(_translate("Tester", "Data Interval"))
-        # self.DataIntervalButton.setText(_translate("Tester", "Confirmer"))
-        # self.CloseButton.setText(_translate("Tester", "Fermer"))
-        # self.groupBox_3.setTitle(_translate("Tester", "Afficher données"))
-        # self.lcdTextTimeRecording.setText(_translate("Tester", "Time recording [s]"))
-        # self.lcdTextPositionChange.setText(_translate("Tester", "Position Change"))
-        # self.lcdTextTimeChange.setText(_translate("Tester", "Time change [ms]"))
-        # self.lcdTextDistance.setText(_translate("Tester", "Distance [dm]"))
 
         try:
-            repoAdress=config.get('REPO','GitHub')
+            repoAdress=self.config.configuration().get('REPO','GitHub')
         except:
             repoAdress='https://github.com/WilliamBonilla62/GUIPythonEncodeur/'
         hrefRepoAdress=f'<a href="{repoAdress}">{repoAdress}</a>'
