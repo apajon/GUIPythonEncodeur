@@ -133,12 +133,6 @@ class Ui_Encoder(Ui_Style):
                                         +self.configLang.configuration().get("statusBar","file")+" : "+self.statusFile[self.satusBarCount[0]:msg_length+self.satusBarCount[0]]+" | "
                                         +self.configLang.configuration().get("statusBar","folder")+" : "+self.statusFolder[self.satusBarCount[1]:msg_length+self.satusBarCount[1]])
 
-    def centerOnScreen(self):
-        qtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
-        qtRectangle.moveCenter(centerPoint)
-        self.move(qtRectangle.topLeft())
-
     # All coded actions
     # Functions without arguments--------------------------------------------------------------------------------------
     # This functions creates a message box to make the user wants to quit the GUI.
