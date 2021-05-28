@@ -388,11 +388,11 @@ class Ui_Encoder(Ui_Style):
         # item_widget.addToList(self.Liste)
         
         head = 5
-        count = 0
+        # count = 0
         # Strips the newline character
         for line in Lines[head:]:
-            count += 1
-            print("Line{}: {}".format(count, line.strip()))
+            # count += 1
+            # print("Line{}: {}".format(count, line.strip()))
             line_split=line.split("\n")
             line_split=line_split[0].split("; ")
             if len(line_split)==1:

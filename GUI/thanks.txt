@@ -1,0 +1,19 @@
+// Copyright (c) 2021 Adrien Pajon (adrien.pajon@gmail.com)
+// 
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
+***Head Developper***
+Adrien Pajon; adrien.pajon@gmail.com; apajon
+
+***Developper***
+William Ricardo Bonilla Villatero; ; WilliamBonilla62
+Raymond-Pierre Bouchard; ; raymondpro8
+
+***Academic partners***
+Cirris, Québec, QC, Québec, Canada; https://www.cirris.ulaval.ca
+Université Laval, Québec, QC, Canada; https://www.ulaval.ca
+Ciusss Capitale-Nationale, Québec, QC, Canada; https://www.ciusss-capitalenationale.gouv.qc.ca
+
+***Industrial partners***
+Amylior Inc., Vaudreuil-Dorion, QC, ; https://amysystems.com
