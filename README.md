@@ -191,3 +191,6 @@ pyinstaller -F Encoder_Control_GUI.py --add-data config.cfg:./
 Now you show see a new directory named **dist**. \
 \
 A file **Encoder_Control_GUI.exe** will be inside.
+
+## 1.9-Wiki
+For any information on how to setup a RapsberryPi or how this software works: https://github.com/apajon/GUIPythonEncodeur/wiki
