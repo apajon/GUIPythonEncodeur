@@ -11,8 +11,10 @@
 # de https://www.mfitzp.com/tutorials/plotting-matplotlib/
 # et de https://programtalk.com/python-examples/PyQt5.QtGui.QDesktopServices.openUrl/
 # inspiré de https://stackoverflow.com/questions/60563477/pyqt5-tabwidget-tab-bar-blank-area-background-color
+# https://stackoverflow.com/questions/34198904/how-can-i-open-an-url-using-pyqt-when-clicking-on-a-button
+import webbrowser
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
 from matplotlib.figure import Figure
 
 from Encoder_Control_GUI_ONLY import Ui_Tester
@@ -240,7 +242,6 @@ class Ui_Style(Ui_Tester):
         self.Liste.insertItem(1, "Raymond-Pierre Bouchard")
         self.Liste.insertItem(2, "William Ricardo Bonilla Villatero")
 
-
     def setupUi(self, Tester):
         super().setupUi(Tester)
 
@@ -256,6 +257,11 @@ class Ui_Style(Ui_Tester):
         self.Liste = QtWidgets.QListWidget()
         self.updateRemerciement()
         self.verticalLayout_5.addWidget(self.Liste)
+
+        self.actionWiki = QtWidgets.QAction ( Tester )
+        self.actionWiki.setCheckable(False)
+        self.actionWiki.setObjectName("actionWiki")
+        self.actionWiki.setText("Wiki")
 
         self.actionStyle = QtWidgets.QAction ( Tester )
         self.actionStyle.setCheckable(False)
@@ -304,6 +310,7 @@ class Ui_Style(Ui_Tester):
         self.menuFont.addAction(self.actionStyle)
         self.menuFont.addAction(self.actionStyleDefault)
         self.menuFont.setTitle("Modifier le style")
+        self.menuAide.addAction(self.actionWiki)
 
         self.menuCouleur.addAction(self.actionPaletteBackground)
         self.menuCouleur.addAction(self.actionPaletteText)
@@ -332,6 +339,7 @@ class Ui_Style(Ui_Tester):
         self.DisplayPlotButton.clicked.connect(self.PlotData)
         self.actionPaletteBackground.triggered.connect(self.choixCouleurBackground)
         self.actionPaletteText.triggered.connect(self.choixCouleurText)
+        self.actionWiki.triggered.connect(lambda: webbrowser.open('https://github.com/apajon/GUIPythonEncodeur/wiki'))
 
         self.actionENG.triggered.connect(self.ENG)
         self.actionFR.triggered.connect(self.FR)
